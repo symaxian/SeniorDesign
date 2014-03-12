@@ -5,13 +5,17 @@
 	<title>Arent Project Resource Visualizer</title>
 	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
 	<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	<script src="lib/jquery-loadTemplate/jquery.loadTemplate-1.4.1.min.js"></script>
 	<script type="text/javascript" src="code.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
 	<div id="header_container">
 		<div id="header">
-			<table id="header-table">
+			<div id="header-loading" class="hidden">
+				<h3>Loading...</h3>
+			</div>
+			<table id="header-table" class="hidden">
 				<tbody>
 					<tr>
 						<th>Review PR</th>
@@ -35,6 +39,39 @@
 	</div>
 
 	<div id="record-div"></div>
+
+	<!-- Template -->
+	<script type="text/html" id="part-template">
+		<!-- <img data-src="authorPicture" data-alt="author" data-link-wrap="authorPicture"/> -->
+		<div class="post-container">
+			<!--
+				<div data-content="author"></div>
+				<div data-content="date"></div>
+				<div data-content="post" data-format="sameCaseFormatter" data-format-template="upper"></div>
+			-->
+				<strong>Task</strong>
+				<br>
+					<span data-content="task"></span>
+				<strong>Current State</strong>
+				<br>
+					<span data-content="currentState"></span>
+				<strong>User</strong>
+				<br>
+					<span data-content="user"></span>
+				<strong>Role</strong>
+				<br>
+					<span data-content="role"></span>
+				<strong>Created</strong>
+				<br>
+					<span data-content="created"></span>
+				<strong>Last Modified</strong>
+				<br>
+					<span data-content="lastModified"></span>
+				<strong>Status</strong>
+				<br>
+					<span data-content="status"></span>
+		</div>
+	</script>
 
 </body>
 </html>

@@ -77,6 +77,15 @@ viz = {
 		viz.loadData();
 	},
 
+	// This function needs to be called whenever the header changes height,
+	//  in order to update the change record top margin so that the top change
+	//  isnt hidden underneath the stick header.
+	headerUpdated: function viz_headerUpdated() {
+		var h = $('#header')[0].offsetHeight + parseInt($('.change-record').css('margin-top'), 10);
+		console.log(h);
+		$('#record-div').css('margin-top', h);
+	},
+
 	loadData: function viz_loadData() {
 		if(viz.DEBUG) console.log('Loading data');
 		$.get(viz.dataFilepath, function(data) {
@@ -92,6 +101,32 @@ viz = {
 			viz.data.json = viz.parseData(viz.data.array);
 			// Generate the page
 			viz.generatePage(viz.data.json);
+
+
+			// Set our data for the post
+			var post = {
+					author: 'Joe Bloggs',
+					date: '25th May 2013',
+					// authorPicture: 'SimpleExample/img/joeBloggs.gif',
+					post: 'This is the contents of my post'
+				};
+
+			$.addTemplateFormatter({
+				upperCaseFormatter : function(value, template) {
+						return value.toUpperCase();
+					},
+				lowerCaseFormatter : function(value, template) {
+						return value.toLowerCase();
+					},
+				sameCaseFormatter : function(value, template) {
+						if(template == 'upper') {
+							return value.toUpperCase();
+						}
+						return value.toLowerCase();
+					}
+			});
+
+			$('.script-template-container').loadTemplate('#part-template', post);
 
 		});
 	},
@@ -258,6 +293,8 @@ viz = {
 
 		if(viz.DEBUG) console.group('Generating page');
 
+		$('#header-loading').show();
+
 		var $div = $('#record-div');
 
 		// Loop through every change record
@@ -268,6 +305,11 @@ viz = {
 			}
 		}
 
+		$('#header-loading').hide();
+		$('#header-table').show();
+
+		viz.headerUpdated();
+
 		if(viz.DEBUG) console.groupEnd();
 
 	},
@@ -276,20 +318,44 @@ viz = {
 
 		if(viz.DEBUG) console.groupCollapsed('Created DIV for record: '+id);
 
-		var div = document.createElement('div');
-		div.className = 'change-record';
+		var div = document.createElement('div'),
+			$div = $(div);
+		div.className = 'change-record change-record-expanded';
 
 		var title = document.createElement('h3');
 		$(title).text('Change Record: '+id);
-		$(div).append(title);
+		title.className = 'change-record-title';
+
+		// Create the children list div
+		var childDiv = document.createElement('div'),
+			$childDiv = $(childDiv);
+
+		// Create the collapse/expand children button
+		$(title).click(function() {
+			if($childDiv.is(':visible')) {
+				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
+				$div.removeClass('change-record-expanded');
+			}
+			else {
+				// if($div.attr('data-loaded') === 'false') {
+				// 	viz.fillNoticeDivision(id, data, childDiv);
+				// 	$div.attr('data-loaded', 'true');
+				// }
+				$childDiv.show('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
+				$div.addClass('change-record-expanded');
+			}
+		});
 
 		// Loop through every change notice
 		for(var CN_id in data) {
 			if(data.hasOwnProperty(CN_id)) {
 				var CN_data = data[CN_id];
-				$(div).append(viz.createNoticeDivision(CN_id, CN_data));
+				$childDiv.append(viz.createNoticeDivision(CN_id, CN_data));
 			}
 		}
+
+		$div.append(title);
+		$div.append(childDiv);
 
 		if(viz.DEBUG) console.groupEnd();
 
@@ -297,8 +363,12 @@ viz = {
 
 	},
 
-	createNoticeDivision: function viz_createNoticeDivision(id, data) {
+	createNoticeDivision: function viz_createNoticeDivision(id, data, expanded) {
 		if(viz.DEBUG) console.groupCollapsed('Created DIV for notice: '+id);
+
+		if(typeof expanded !== 'boolean') {
+			expanded = false;
+		}
 
 		// Create the division
 		var div = document.createElement('div'),
@@ -308,43 +378,54 @@ viz = {
 		// Create a title
 		var title = document.createElement('h4');
 		$(title).text('Change Notice: '+id);
+		title.className = 'change-notice-title';
 
 		// Create the children list div
 		var childDiv = document.createElement('div'),
 			$childDiv = $(childDiv);
 
 		// Create the collapse/expand children button
-		var button = document.createElement('button'),
-			$button = $(button);
-		$button.text('Collapse');
-		$button.click(function() {
+		$(title).click(function() {
 			if($childDiv.is(':visible')) {
-				$childDiv.hide('scale', { direction: 'vertical', origin: ['top', 'center'] }, 'slow');
-				$button.text('Expand');
+				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 			}
 			else {
-				$childDiv.show('scale', { direction: 'vertical', origin: ['top', 'center'] }, 'slow');
-				$button.text('Collapse');
+				if($div.attr('data-loaded') === 'false') {
+					viz.fillNoticeDivision(id, data, childDiv);
+					$div.attr('data-loaded', 'true');
+				}
+				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 			}
 		});
 
-		// Loop through every change notice
-		console.log(data);
-		for(var CT_id in data) {
-			if(data.hasOwnProperty(CT_id)) {
-				var CT_data = data[CT_id];
-				$(childDiv).append(viz.createTaskDivision(CT_id, CT_data));
-			}
+		$childDiv.hide();
+
+		$div.attr('data-loaded', expanded);
+		if(expanded) {
+			viz.fillNoticeDivision(id, data, childDiv);
 		}
 
 		// Add the components
 		$div.append(title);
-		$div.append(button);
 		$div.append(childDiv);
 
 		if(viz.DEBUG) console.groupEnd();
 
 		return div;
+
+	},
+
+	fillNoticeDivision: function viz_fillNoticeDivision(id, data, div) {
+
+		// Loop through every change task
+		// console.log(data);
+		var $div = $(div);
+		for(var CT_id in data) {
+			if(data.hasOwnProperty(CT_id)) {
+				var CT_data = data[CT_id];
+				$div.append(viz.createTaskDivision(CT_id, CT_data));
+			}
+		}
 
 	},
 
@@ -375,15 +456,38 @@ viz = {
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'change-task';
+		$div.attr('data-loaded', true);
 
+		// Create the title
 		var title = document.createElement('h4');
 		$(title).text('Change Task: '+id);
+		title.className = 'change-task-title';
 		$div.append(title);
+
+		// Create the children list div
+		var childDiv = document.createElement('div'),
+			$childDiv = $(childDiv);
 
 		var $table = $.parseHTML('<table><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></table>'),
 			table = $table[0];
-		$div.append(table);
+		$childDiv.append(table);
 		var tableRow = table.childNodes[0].childNodes[0];
+
+
+		// Create the collapse/expand children button
+		$(title).click(function() {
+			if($childDiv.is(':visible')) {
+				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+			}
+			else {
+				if($div.attr('data-loaded') === 'false') {
+					viz.fillNoticeDivision(id, data, childDiv);
+					$div.attr('data-loaded', 'true');
+				}
+				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+			}
+		});
+
 
 		// Loop through every part
 		for(var part_id in data) {
@@ -399,37 +503,30 @@ viz = {
 			}
 		}
 
+		$div.append(childDiv);
+
 		return div;
 
 	},
 
 	createPartDivision: function viz_createPartDivision(id, data) {
 
-		var div = document.createElement('div');
+		var div = document.createElement('div'),
+			$div = $(div);
 		div.className = 'part';
 
 		var title = document.createElement('h4');
 		$(title).text(id);
-		$(div).append(title);
+		$div.append(title);
 
 		// JR: This is just temporary, just to show all the part data
 
 		// Add the data
 		var dl = document.createElement('dl');
-		$(div).append(dl);
 
-		var dtData = [
-			'Task',
-			// 'Object Description',
-			'Current State',
-			'User',
-			'Role',
-			'Created',
-			'Last Modified',
-			'Status'
-		];
+		// JR: objectDescription is ignored for now, too much text
 
-		var ddData = [
+		var propertyNames = [
 			'task',
 			// 'objectDescription',
 			'currentState',
@@ -442,18 +539,32 @@ viz = {
 
 		if(viz.splitObjectDescription) {
 			// dtData.push('Document Link');
-			// ddData.push('link');
+			// propertyNames.push('link');
 		}
 
-		for(var i=0;i<dtData.length;i++) {
-			var dt = document.createElement('dt'),
-				dd = document.createElement('dd');
-			$(dt).text(dtData[i]);
-			$(dd).text(data[ddData[i]]);
+		var templateData = {};
 
-			$(dl).append(dt);
-			$(dl).append(dd);
+		for(var i=0;i<propertyNames.length;i++) {
+			templateData[propertyNames[i]] = data[propertyNames[i]];
 		}
+
+		// $.addTemplateFormatter({
+		// 	upperCaseFormatter : function(value, template) {
+		// 			return value.toUpperCase();
+		// 		},
+		// 	lowerCaseFormatter : function(value, template) {
+		// 			return value.toLowerCase();
+		// 		},
+		// 	sameCaseFormatter : function(value, template) {
+		// 			if(template == 'upper') {
+		// 				return value.toUpperCase();
+		// 			}
+		// 			return value.toLowerCase();
+		// 		}
+		// });
+
+		$div.loadTemplate('#part-template', templateData);
+
 
 		return div;
 
