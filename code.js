@@ -33,7 +33,7 @@ viz = {
 	DEBUG: true,
 		// Whether to log output or not
 
-	dataFilepath: '../Project/ecr_report.csv',
+	dataFilepath: 'ecr_report.csv',
 		// The filepath for the CSV data
 
 	splitObjectDescription: true,
