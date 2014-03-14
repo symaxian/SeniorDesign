@@ -82,14 +82,14 @@ viz = {
 	//  isnt hidden underneath the stick header.
 	headerUpdated: function viz_headerUpdated() {
 		var h = $('#header')[0].offsetHeight + parseInt($('.change-record').css('margin-top'), 10);
-		console.log(h);
+		viz.console.log(h);
 		$('#record-div').css('margin-top', h);
 	},
 
 	loadData: function viz_loadData() {
-		if(viz.DEBUG) console.log('Loading data');
+		viz.console.log('Loading data');
 		$.get(viz.dataFilepath, function(data) {
-			if(viz.DEBUG) console.log('Data loaded');
+			viz.console.log('Data loaded');
 
 			// JR: TODO: Error handling if the file was not found
 
@@ -291,7 +291,7 @@ viz = {
 
 	generatePage: function viz_generatePage(data) {
 
-		if(viz.DEBUG) console.group('Generating page');
+		viz.console.group('Generating page');
 
 		$('#header-loading').show();
 
@@ -310,13 +310,13 @@ viz = {
 
 		viz.headerUpdated();
 
-		if(viz.DEBUG) console.groupEnd();
+		viz.console.groupEnd();
 
 	},
 
 	createRecordDivision: function viz_createRecordDivision(id, data) {
 
-		if(viz.DEBUG) console.groupCollapsed('Created DIV for record: '+id);
+		viz.console.groupCollapsed('Created DIV for record: '+id);
 
 		var div = document.createElement('div'),
 			$div = $(div);
@@ -357,14 +357,14 @@ viz = {
 		$div.append(title);
 		$div.append(childDiv);
 
-		if(viz.DEBUG) console.groupEnd();
+		viz.console.groupEnd();
 
 		return div;
 
 	},
 
 	createNoticeDivision: function viz_createNoticeDivision(id, data, expanded) {
-		if(viz.DEBUG) console.groupCollapsed('Created DIV for notice: '+id);
+		viz.console.groupCollapsed('Created DIV for notice: '+id);
 
 		if(typeof expanded !== 'boolean') {
 			expanded = false;
@@ -409,7 +409,7 @@ viz = {
 		$div.append(title);
 		$div.append(childDiv);
 
-		if(viz.DEBUG) console.groupEnd();
+		viz.console.groupEnd();
 
 		return div;
 
@@ -418,7 +418,7 @@ viz = {
 	fillNoticeDivision: function viz_fillNoticeDivision(id, data, div) {
 
 		// Loop through every change task
-		// console.log(data);
+		// viz.console.log(data);
 		var $div = $(div);
 		for(var CT_id in data) {
 			if(data.hasOwnProperty(CT_id)) {
@@ -567,6 +567,34 @@ viz = {
 
 
 		return div;
+
+	},
+
+	console: {
+
+		log: function() {
+			if(typeof console === 'object' && viz.DEBUG) {
+				console.log.apply(console, arguments);
+			}
+		},
+
+		group: function() {
+			if(typeof console === 'object' && viz.DEBUG) {
+				console.group.apply(console, arguments);
+			}
+		},
+
+		groupCollapsed: function() {
+			if(typeof console === 'object' && viz.DEBUG) {
+				console.groupCollapsed.apply(console, arguments);
+			}
+		},
+
+		groupEnd: function() {
+			if(typeof console === 'object' && viz.DEBUG) {
+				console.groupEnd.apply(console, arguments);
+			}
+		}
 
 	}
 
