@@ -56,6 +56,8 @@ viz = {
 	},
 		// Some storage for all the data, same data but different formats
 
+	users: [],
+
 	columnNames: [
 		'ObjectTypeIndicator',
 		'Reassigned',
@@ -341,6 +343,47 @@ viz = {
 	},
 
 	calculateTaskTime: function viz_calculateTaskTimes(CT) {
+		var minCreated = Infinity,
+			maxCreated = 0,
+			minModified = Infinity,
+			maxModified = 0;
+		// Loop through the parts
+		var parts = CT.parts;
+		for(var part_id in parts) {
+			if(parts.hasOwnProperty(part_id)) {
+				var part = parts[part_id];
+				// Loop through the part pieces
+				for(var partPieceIndex=0; partPieceIndex<part.length; partPieceIndex++) {
+					// Get the part piece data and the times
+					var partPiece = part[partPieceIndex];
+					var created = partPiece.created,
+						modified = partPiece.lastModified;
+					// Update the min/max times
+					if(created < minCreated) {
+						minCreated = created;
+					}
+					else if(created > maxCreated) {
+						maxCreated = created;
+					}
+					if(modified < minModified) {
+						minModified = modified;
+					}
+					else if(modified > maxModified) {
+						maxModified = modified;
+					}
+					// Grab the part user
+					var user = partPiece.user;
+					if(viz.users.indexOf(user) === -1) {
+						viz.users.push(user);
+					}
+				}
+			}
+		}
+		// Set the data on the CT
+		CT.minCreated = minCreated;
+		CT.maxCreated = maxCreated;
+		CT.minModified = minModified;
+		CT.maxModified = maxModified;
 
 	},
 
