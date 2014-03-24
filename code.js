@@ -314,44 +314,54 @@ viz = {
 
 	},
 
-	createRecordDivision: function viz_createRecordDivision(id, data) {
-
+	createRecordDivision: function viz_createRecordDivision(id, data, expanded) {
 		viz.console.groupCollapsed('Created DIV for record: '+id);
 
+		// The expanded property defaults to false
+		if(typeof expanded !== 'boolean') {
+			expanded = false;
+		}
+
+		// Create the division
 		var div = document.createElement('div'),
 			$div = $(div);
-		div.className = 'change-record change-record-expanded';
+		div.className = 'change-record';
 
-		var title = document.createElement('h3');
-		$(title).text('Change Record: '+id);
+		// Create the title element
+		var title = document.createElement('h3'),
+			$title = $(title);
+		$title.text('Change Record: '+id);
 		title.className = 'change-record-title';
 
 		// Create the children list div
 		var childDiv = document.createElement('div'),
 			$childDiv = $(childDiv);
 
-		// Create the collapse/expand children button
-		$(title).click(function() {
+		// Create the collapse/expand click handler
+		$title.click(function() {
 			if($childDiv.is(':visible')) {
 				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
 				$div.removeClass('change-record-expanded');
 			}
 			else {
-				// if($div.attr('data-loaded') === 'false') {
-				// 	viz.fillNoticeDivision(id, data, childDiv);
-				// 	$div.attr('data-loaded', 'true');
-				// }
+				if($div.attr('data-loaded') === 'false') {
+					viz.fillRecordDivision(id, data, childDiv);
+					$div.attr('data-loaded', 'true');
+				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
 				$div.addClass('change-record-expanded');
 			}
 		});
 
-		// Loop through every change notice
-		for(var CN_id in data) {
-			if(data.hasOwnProperty(CN_id)) {
-				var CN_data = data[CN_id];
-				$childDiv.append(viz.createNoticeDivision(CN_id, CN_data));
-			}
+		// fillRecordDivision(id, data, childDiv);
+
+		$div.attr('data-loaded', expanded);
+		if(expanded) {
+			viz.fillRecordDivision(id, data, childDiv);
+			$div.addClass('change-record-expanded');
+		}
+		else {
+			$childDiv.hide();
 		}
 
 		$div.append(title);
@@ -363,9 +373,22 @@ viz = {
 
 	},
 
+	fillRecordDivision: function viz_fillRecordDivision(id, data, childDiv) {
+		var $childDiv = $(childDiv);
+		// Loop through every change notice
+		for(var CN_id in data) {
+			if(data.hasOwnProperty(CN_id)) {
+				var CN_data = data[CN_id];
+				$childDiv.append(viz.createNoticeDivision(CN_id, CN_data));
+			}
+		}
+
+	},
+
 	createNoticeDivision: function viz_createNoticeDivision(id, data, expanded) {
 		viz.console.groupCollapsed('Created DIV for notice: '+id);
 
+		// The expanded property defaults to false
 		if(typeof expanded !== 'boolean') {
 			expanded = false;
 		}
@@ -376,8 +399,9 @@ viz = {
 		div.className = 'change-notice';
 
 		// Create a title
-		var title = document.createElement('h4');
-		$(title).text('Change Notice: '+id);
+		var title = document.createElement('h4'),
+			$title = $(title);
+		$title.text('Change Notice: '+id);
 		title.className = 'change-notice-title';
 
 		// Create the children list div
@@ -385,7 +409,7 @@ viz = {
 			$childDiv = $(childDiv);
 
 		// Create the collapse/expand children button
-		$(title).click(function() {
+		$title.click(function() {
 			if($childDiv.is(':visible')) {
 				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 			}
@@ -398,11 +422,13 @@ viz = {
 			}
 		});
 
-		$childDiv.hide();
-
+		// Set the data loaded attribute
 		$div.attr('data-loaded', expanded);
 		if(expanded) {
 			viz.fillNoticeDivision(id, data, childDiv);
+		}
+		else {
+			$childDiv.hide();
 		}
 
 		// Add the components
@@ -451,16 +477,23 @@ viz = {
 		return 0;
 	},
 
-	createTaskDivision: function viz_createTaskDivision(id, data) {
+	createTaskDivision: function viz_createTaskDivision(id, data, expanded) {
 
+		// The expanded property defaults to false
+		if(typeof expanded !== 'boolean') {
+			expanded = false;
+		}
+
+		// Create the div
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'change-task';
 		$div.attr('data-loaded', true);
 
 		// Create the title
-		var title = document.createElement('h4');
-		$(title).text('Change Task: '+id);
+		var title = document.createElement('h4'),
+			$title = $(title);
+		$title.text('Change Task: '+id);
 		title.className = 'change-task-title';
 		$div.append(title);
 
@@ -475,19 +508,36 @@ viz = {
 
 
 		// Create the collapse/expand children button
-		$(title).click(function() {
+		$title.click(function() {
 			if($childDiv.is(':visible')) {
 				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 			}
 			else {
 				if($div.attr('data-loaded') === 'false') {
-					viz.fillNoticeDivision(id, data, childDiv);
+					viz.fillTaskDivision(id, data, childDiv, tableRow);
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 			}
 		});
 
+		// Set the data loaded attribute
+		$div.attr('data-loaded', expanded);
+		if(expanded) {
+			viz.fillTaskDivision(id, data, childDiv, tableRow);
+		}
+		else {
+			$childDiv.hide();
+		}
+
+		$div.append(childDiv);
+
+		return div;
+
+	},
+
+	fillTaskDivision: function viz_fillTaskDivision(id, data, childDiv, tableRow) {
+		var $childDiv = $(childDiv);
 
 		// Loop through every part
 		for(var part_id in data) {
@@ -502,11 +552,6 @@ viz = {
 				}
 			}
 		}
-
-		$div.append(childDiv);
-
-		return div;
-
 	},
 
 	createPartDivision: function viz_createPartDivision(id, data) {
