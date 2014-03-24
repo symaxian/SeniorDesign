@@ -40,6 +40,8 @@ body {
 	border: none;
 }
 
+/* Change Record */
+
 .change-record {
 	background-color: #99DDFF;
 	border-radius: 10px;
@@ -68,6 +70,8 @@ body {
 	border-radius: 8px 8px 0 0;
 }*/
 
+/* Change Notice */
+
 .change-notice {
 	background-color: #FFDD99;
 	border-radius: 10px;
@@ -86,6 +90,8 @@ body {
 	background-color: #FFFFAA;
 	cursor: pointer;
 }
+
+/* Change Task */
 
 .change-task {
 	background-color: #99FF99;
@@ -106,6 +112,8 @@ body {
 	cursor: pointer;
 }
 
+/* Change Task - Part Table */
+
 .change-task table {
 	table-layout: fixed;
 	width: 100%;
@@ -118,8 +126,11 @@ body {
 }
 
 .change-task tr td:first-child {
+	/* Hide the left border on the first column */
 	border: none;
 }
+
+/* Part */
 
 .part {
 	background-color: #BBFFFF;

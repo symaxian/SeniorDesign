@@ -33,6 +33,8 @@ viz = {
 	DEBUG: true,
 		// Whether to log output or not
 
+	log: null,
+
 	dataFilepath: 'ecr_report.csv',
 		// The filepath for the CSV data
 
@@ -74,6 +76,7 @@ viz = {
 	],
 
 	init: function viz_init() {
+		viz.log = viz.DEBUG && typeof console === 'object';
 		viz.loadData();
 	},
 
@@ -154,32 +157,36 @@ viz = {
 			'gi'
 		);
 
+		// Create a regular expression to match all double double quotes
+		var globalDoubleQuoteRegEx = new RegExp('""', 'g');
+
 		// Create an array to hold our data. Give the array a default empty first row
 		var arrData = [[]];
 
 		// Create an array to hold our individual pattern matching groups
-		var arrMatches = objPattern.exec(data);
+		var arrMatches = objPattern.exec(data),
+			strMatchedDelimiter,
+			strMatchedValue;
 
 		// Loop over the regular expression matches until we can no longer find a match
 		while(arrMatches) {
 
 			// Get the delimiter that was found.
-			var strMatchedDelimiter = arrMatches[1];
+			strMatchedDelimiter = arrMatches[1];
 
 			// Check to see if the given delimiter has a length (is not the start of string) and if it matches field delimiter.
-			// If id does not, then we know that this delimiter is a row delimiter.
+			// If it does not, then we know that this delimiter is a row delimiter.
 			if(strMatchedDelimiter.length && (strMatchedDelimiter !== delimiter)) {
 				// Since we have reached a new row of data, add an empty row to our data array
 				arrData.push([]);
 			}
 
 			// Now that we have our delimiter out of the way, let's check to see which kind of value we captured (quoted or unquoted).
-			var strMatchedValue;
 			if(arrMatches[2]) {
 				// We found a quoted value
 				// When we capture this value, unescape any double quotes
 				strMatchedValue = arrMatches[2].replace(
-					new RegExp('""', 'g'),
+					globalDoubleQuoteRegEx,
 					"\""
 				);
 			}
@@ -199,6 +206,7 @@ viz = {
 		return arrData;
 	},
 
+	// This will parse the 2d array of data into a hierarchical JSON object
 	parseData: function viz_parseData(data) {
 
 		// Define indexes for the columns
@@ -292,10 +300,12 @@ viz = {
 	generatePage: function viz_generatePage(data) {
 
 		viz.console.group('Generating page');
+		if(viz.log) console.time('Generate Page');
 
 		$('#header-loading').show();
 
-		var $div = $('#record-div');
+		// Create a division that will contain CR's
+		var $div = $(document.createElement('div'));
 
 		// Loop through every change record
 		for(var CR_id in data) {
@@ -308,12 +318,18 @@ viz = {
 		$('#header-loading').hide();
 		$('#header-table').show();
 
+		// Append the div to the record-div
+		$('#record-div').append($div);
+
+		// Call the headerUpdated method to fix the content margin
 		viz.headerUpdated();
 
 		viz.console.groupEnd();
+		if(viz.log) console.timeEnd('Generate Page');
 
 	},
 
+	// This method creates and returns a record division
 	createRecordDivision: function viz_createRecordDivision(id, data, expanded) {
 		viz.console.groupCollapsed('Created DIV for record: '+id);
 
@@ -353,9 +369,10 @@ viz = {
 			}
 		});
 
-		// fillRecordDivision(id, data, childDiv);
-
+		// Set the data-loaded attribute
 		$div.attr('data-loaded', expanded);
+
+		// If expanded, load the children, else hide the child div
 		if(expanded) {
 			viz.fillRecordDivision(id, data, childDiv);
 			$div.addClass('change-record-expanded');
@@ -412,6 +429,7 @@ viz = {
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
 				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				$div.removeClass('change-notice-expanded');
 			}
 			else {
 				if($div.attr('data-loaded') === 'false') {
@@ -419,13 +437,17 @@ viz = {
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				$div.addClass('change-notice-expanded');
 			}
 		});
 
 		// Set the data loaded attribute
 		$div.attr('data-loaded', expanded);
+
+		// If expanded, load the children, else hide the child div
 		if(expanded) {
 			viz.fillNoticeDivision(id, data, childDiv);
+			$div.addClass('change-notice-expanded');
 		}
 		else {
 			$childDiv.hide();
@@ -441,42 +463,80 @@ viz = {
 
 	},
 
-	fillNoticeDivision: function viz_fillNoticeDivision(id, data, div) {
+	// This method fills a notice division children div with its children
+	fillNoticeDivision: function viz_fillNoticeDivision(id, data, childDiv) {
 
 		// Loop through every change task
 		// viz.console.log(data);
-		var $div = $(div);
+		var $childDiv = $(childDiv);
 		for(var CT_id in data) {
 			if(data.hasOwnProperty(CT_id)) {
 				var CT_data = data[CT_id];
-				$div.append(viz.createTaskDivision(CT_id, CT_data));
+				$childDiv.append(viz.createTaskDivision(CT_id, CT_data));
 			}
 		}
 
 	},
 
 	getColumnIndex: function viz_getColumnIndex(task) {
+		// Get the prefixes, followed by either '-' or ' - '
 		var prefix;
 		var prefix1 = task.split('-')[0];
 		var prefix2 = task.split(' - ')[0];
+		// Check for the correct prefix
 		if(prefix1.length < prefix2.length) {
 			prefix = prefix1;
 		}
 		else {
 			prefix = prefix2;
 		}
+		// Return the relevant column
+		if(prefix === 'C1S4') {
+			return 0;
+		}
+		if(prefix === 'GateS') {
+			return 1;
+		}
 		if(prefix === 'CT1' || prefix === 'CN28' || prefix === 'P1') {
 			return 2;
+		}
+		if(prefix === 'CT16' || prefix === 'P3') {
+			return 3;
+		}
+		if(prefix === 'P5MFG') {
+			return 4;
 		}
 		if(prefix === 'P33') {
 			return 5;
 		}
+		if(prefix === 'CN49' || prefix === 'CN52') {
+			return 6;
+		}
 		if(prefix === 'MCT16' || prefix === 'MCT17' || prefix === 'MCT18') {
 			return 7;
+		}
+		if(prefix === 'MCN56') {
+			return 8;
+		}
+		if(prefix === 'P9') {
+			return 9;
+		}
+		if(prefix === 'P10') {
+			return 10;
+		}
+		if(prefix === 'P23') {
+			return 11;
+		}
+		if(prefix === 'MCT19' || prefix === 'MCT20') {
+			return 12;
+		}
+		if(prefix === 'MCN20') {
+			return 13;
 		}
 		return 0;
 	},
 
+	// This method creates and returns a task division
 	createTaskDivision: function viz_createTaskDivision(id, data, expanded) {
 
 		// The expanded property defaults to false
@@ -501,9 +561,11 @@ viz = {
 		var childDiv = document.createElement('div'),
 			$childDiv = $(childDiv);
 
+		// Generate the part table
 		var $table = $.parseHTML('<table><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></table>'),
 			table = $table[0];
 		$childDiv.append(table);
+		// Get the first table row, to place the children into
 		var tableRow = table.childNodes[0].childNodes[0];
 
 
@@ -514,7 +576,7 @@ viz = {
 			}
 			else {
 				if($div.attr('data-loaded') === 'false') {
-					viz.fillTaskDivision(id, data, childDiv, tableRow);
+					viz.fillTaskDivision(id, data, tableRow);
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
@@ -523,8 +585,10 @@ viz = {
 
 		// Set the data loaded attribute
 		$div.attr('data-loaded', expanded);
+
+		// Fill with parts if expanded, else hide the children div
 		if(expanded) {
-			viz.fillTaskDivision(id, data, childDiv, tableRow);
+			viz.fillTaskDivision(id, data, tableRow);
 		}
 		else {
 			$childDiv.hide();
@@ -536,9 +600,8 @@ viz = {
 
 	},
 
-	fillTaskDivision: function viz_fillTaskDivision(id, data, childDiv, tableRow) {
-		var $childDiv = $(childDiv);
-
+	// This method fills a task division children div with its children
+	fillTaskDivision: function viz_fillTaskDivision(id, data, tableRow) {
 		// Loop through every part
 		for(var part_id in data) {
 			if(data.hasOwnProperty(part_id)) {
@@ -609,7 +672,6 @@ viz = {
 		// });
 
 		$div.loadTemplate('#part-template', templateData);
-
 
 		return div;
 
