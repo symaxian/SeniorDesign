@@ -426,17 +426,36 @@ viz = {
 		// Create the division
 		var div = document.createElement('div'),
 			$div = $(div);
-		div.className = 'change-notice';
+		div.className = 'CN';
+		$div.attr('data-loaded', expanded);
 
-		// Create a title
-		var title = document.createElement('h4'),
-			$title = $(title);
-		$title.text('Change Notice: '+id);
-		title.className = 'change-notice-title';
+		// Load the template
+		var templateData = {
+			title: 'Change Notice: '+id,
+			count: data.taskCount
+		};
+		$div.loadTemplate('#CN-template', templateData);
 
-		// Create the children list div
-		var childDiv = document.createElement('div'),
-			$childDiv = $(childDiv);
+		// Get the title and notices div
+		var $title = $div.find('.CN-title');
+		var $childDiv = $div.find('.CN-tasks');
+
+
+
+		// // Create the division
+		// var div = document.createElement('div'),
+		// 	$div = $(div);
+		// div.className = 'change-notice';
+
+		// // Create a title
+		// var title = document.createElement('h4'),
+		// 	$title = $(title);
+		// $title.text('Change Notice: '+id);
+		// title.className = 'change-notice-title';
+
+		// // Create the children list div
+		// var childDiv = document.createElement('div'),
+		// 	$childDiv = $(childDiv);
 
 		// Create the collapse/expand children button
 		$title.click(function() {
@@ -446,7 +465,7 @@ viz = {
 			}
 			else {
 				if($div.attr('data-loaded') === 'false') {
-					viz.fillNoticeDivision(id, data, childDiv);
+					viz.fillNoticeDivision(id, data, $childDiv);
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
@@ -454,21 +473,14 @@ viz = {
 			}
 		});
 
-		// Set the data loaded attribute
-		$div.attr('data-loaded', expanded);
-
 		// If expanded, load the children, else hide the child div
 		if(expanded) {
-			viz.fillNoticeDivision(id, data, childDiv);
+			viz.fillNoticeDivision(id, data, $childDiv);
 			$div.addClass('change-notice-expanded');
 		}
 		else {
 			$childDiv.hide();
 		}
-
-		// Add the components
-		$div.append(title);
-		$div.append(childDiv);
 
 		viz.console.groupEnd();
 
@@ -477,11 +489,8 @@ viz = {
 	},
 
 	// This method fills a notice division children div with its children
-	fillNoticeDivision: function viz_fillNoticeDivision(id, data, childDiv) {
-
+	fillNoticeDivision: function viz_fillNoticeDivision(id, data, $childDiv) {
 		// Loop through every change task
-		// viz.console.log(data);
-		var $childDiv = $(childDiv);
 		var tasks = data.tasks;
 		for(var CT_id in tasks) {
 			if(tasks.hasOwnProperty(CT_id)) {
@@ -489,7 +498,6 @@ viz = {
 				$childDiv.append(viz.createTaskDivision(CT_id, CT_data));
 			}
 		}
-
 	},
 
 	getColumnIndex: function viz_getColumnIndex(task) {
