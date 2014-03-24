@@ -287,8 +287,8 @@ viz = {
 					currentState: row[index.CurrentState],
 					user: row[index.User],
 					role: row[index.Role],
-					created: row[index.Created],
-					lastModified: row[index.LastModified],
+					created: new Date(row[index.Created]).valueOf(),
+					lastModified: new Date(row[index.LastModified]).valueOf(),
 					status: row[index.Status]
 				};
 
@@ -304,8 +304,43 @@ viz = {
 
 		}
 
+		// Derive the begin-end time points for each task
+		viz.calculateAllTaskTimes(json);
+
 		// Return the data
 		return json;
+
+	},
+
+	calculateAllTaskTimes: function viz_calculateAllTaskTimes(json) {
+
+		// Loop through the records
+		var records = json.records;
+		for(var CR_id in records) {
+			if(records.hasOwnProperty(CR_id)) {
+				var CR = records[CR_id];
+				// Loop through the notices
+				var notices = CR.notices;
+				for(var CN_id in notices) {
+					if(notices.hasOwnProperty(CN_id)) {
+						var CN = notices[CN_id];
+						// Loop through the tasks
+						var tasks = CN.tasks;
+						for(var CT_id in tasks) {
+							if(tasks.hasOwnProperty(CT_id)) {
+								var CT = tasks[CT_id];
+								console.log(CT);
+								viz.calculateTaskTime(CT);
+							}
+						}
+					}
+				}
+			}
+		}
+
+	},
+
+	calculateTaskTime: function viz_calculateTaskTimes(CT) {
 
 	},
 
@@ -500,6 +535,8 @@ viz = {
 		}
 	},
 
+	// Returns the column that a task goes under
+	// Each part row has a task string, the part does under a column dependent on the first few chars of the task string
 	getColumnIndex: function viz_getColumnIndex(task) {
 		// Get the prefixes, followed by either '-' or ' - '
 		var prefix;

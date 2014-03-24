@@ -6,6 +6,7 @@ body {
 
 /* Make Header Sticky */
 #header_container {
+	z-index: 100000;
 	background: #eee;
 	border: 1px solid #666;
 	/*height: 60px;*/
