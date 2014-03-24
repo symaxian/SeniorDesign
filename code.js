@@ -84,7 +84,7 @@ viz = {
 	//  in order to update the change record top margin so that the top change
 	//  isnt hidden underneath the stick header.
 	headerUpdated: function viz_headerUpdated() {
-		var h = $('#header')[0].offsetHeight + parseInt($('.change-record').css('margin-top'), 10);
+		var h = $('#header')[0].offsetHeight + parseInt($('.CR').css('margin-top'), 10);
 		viz.console.log(h);
 		$('#record-div').css('margin-top', h);
 	},
@@ -216,7 +216,10 @@ viz = {
 			index[viz.columnNames[colNameIndex]] = colNameIndex;
 		}
 
-		var json = {};
+		var json = {
+			records: {},
+			recordCount: 0
+		};
 
 		// Loop through every row
 		// Start at 1 to avoid the column names
@@ -235,16 +238,24 @@ viz = {
 				part_id = row[index.Part];
 
 			// Create new CR object if needed
-			if(typeof json[CR_id] !== 'object') {
-				json[CR_id] = {};
+			if(typeof json.records[CR_id] !== 'object') {
+				json.records[CR_id] = {
+					notices: {},
+					noticeCount: 0
+				};
+				json.recordCount++;
 			}
-			var CR = json[CR_id];
+			var CR = json.records[CR_id];
 
 			// Create new CN object if needed
-			if(typeof CR[CN_id] !== 'object') {
-				CR[CN_id] = {};
+			if(typeof CR.notices[CN_id] !== 'object') {
+				CR.notices[CN_id] = {
+					tasks: {},
+					taskCount: 0
+				};
+				CR.noticeCount++;
 			}
-			var CN = CR[CN_id];
+			var CN = CR.notices[CN_id];
 
 			// JR: Until we decide on what to do with null tasks(CT), just use "null" as a task ID
 
@@ -252,18 +263,23 @@ viz = {
 			// if(CT_id !== 'null') {
 
 				// Create new CT object if needed
-				if(typeof CN[CT_id] !== 'object') {
-					CN[CT_id] = {};
+				if(typeof CN.tasks[CT_id] !== 'object') {
+					CN.tasks[CT_id] = {
+						parts: {},
+						partCount: 0
+					};
+					CN.taskCount++;
 				}
-				var CT = CN[CT_id];
+				var CT = CN.tasks[CT_id];
 
 				// Create new part array if needed
-				if(typeof CT[part_id] !== 'object') {
-					CT[part_id] = [];
+				if(typeof CT.parts[part_id] !== 'object') {
+					CT.parts[part_id] = [];
+					CT.partCount++;
 				}
-				var part = CT[part_id];
+				var part = CT.parts[part_id];
 
-				// Add a new part object to the CT object
+				// Add a new part piece object to the CT object
 				var partPiece = {
 					task: row[index.Task],
 					// actions: row[index.Actions],			JR: Ignored, always blank
@@ -297,7 +313,7 @@ viz = {
 	//  Page Generation
 	//___________________//
 
-	generatePage: function viz_generatePage(data) {
+	generatePage: function viz_generatePage(json) {
 
 		viz.console.group('Generating page');
 		if(viz.log) console.time('Generate Page');
@@ -307,10 +323,11 @@ viz = {
 		// Create a division that will contain CR's
 		var $div = $(document.createElement('div'));
 
+		var records = json.records;
 		// Loop through every change record
-		for(var CR_id in data) {
-			if(data.hasOwnProperty(CR_id)) {
-				var CR_data = data[CR_id];
+		for(var CR_id in records) {
+			if(records.hasOwnProperty(CR_id)) {
+				var CR_data = records[CR_id];
 				$div.append(viz.createRecordDivision(CR_id, CR_data));
 			}
 		}
@@ -341,48 +358,44 @@ viz = {
 		// Create the division
 		var div = document.createElement('div'),
 			$div = $(div);
-		div.className = 'change-record';
+		div.className = 'CR';
+		$div.attr('data-loaded', expanded);
 
-		// Create the title element
-		var title = document.createElement('h3'),
-			$title = $(title);
-		$title.text('Change Record: '+id);
-		title.className = 'change-record-title';
+		// Load the template
+		var templateData = {
+			title: 'Change Record: '+id,
+			count: data.noticeCount
+		};
+		$div.loadTemplate('#CR-template', templateData);
 
-		// Create the children list div
-		var childDiv = document.createElement('div'),
-			$childDiv = $(childDiv);
+		// Get the title and notices div
+		var $title = $div.find('.CR-title');
+		var $childDiv = $div.find('.CR-notices');
 
 		// Create the collapse/expand click handler
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
 				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
-				$div.removeClass('change-record-expanded');
+				$div.removeClass('CR-expanded');
 			}
 			else {
 				if($div.attr('data-loaded') === 'false') {
-					viz.fillRecordDivision(id, data, childDiv);
+					viz.fillRecordDivision(id, data, $childDiv);
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
-				$div.addClass('change-record-expanded');
+				$div.addClass('CR-expanded');
 			}
 		});
 
-		// Set the data-loaded attribute
-		$div.attr('data-loaded', expanded);
-
 		// If expanded, load the children, else hide the child div
 		if(expanded) {
-			viz.fillRecordDivision(id, data, childDiv);
-			$div.addClass('change-record-expanded');
+			viz.fillRecordDivision(id, data, $childDiv);
+			$div.addClass('CR-expanded');
 		}
 		else {
 			$childDiv.hide();
 		}
-
-		$div.append(title);
-		$div.append(childDiv);
 
 		viz.console.groupEnd();
 
@@ -390,12 +403,12 @@ viz = {
 
 	},
 
-	fillRecordDivision: function viz_fillRecordDivision(id, data, childDiv) {
-		var $childDiv = $(childDiv);
+	fillRecordDivision: function viz_fillRecordDivision(id, data, $childDiv) {
+		var notices = data.notices;
 		// Loop through every change notice
-		for(var CN_id in data) {
-			if(data.hasOwnProperty(CN_id)) {
-				var CN_data = data[CN_id];
+		for(var CN_id in notices) {
+			if(notices.hasOwnProperty(CN_id)) {
+				var CN_data = notices[CN_id];
 				$childDiv.append(viz.createNoticeDivision(CN_id, CN_data));
 			}
 		}
@@ -469,9 +482,10 @@ viz = {
 		// Loop through every change task
 		// viz.console.log(data);
 		var $childDiv = $(childDiv);
-		for(var CT_id in data) {
-			if(data.hasOwnProperty(CT_id)) {
-				var CT_data = data[CT_id];
+		var tasks = data.tasks;
+		for(var CT_id in tasks) {
+			if(tasks.hasOwnProperty(CT_id)) {
+				var CT_data = tasks[CT_id];
 				$childDiv.append(viz.createTaskDivision(CT_id, CT_data));
 			}
 		}
@@ -603,9 +617,10 @@ viz = {
 	// This method fills a task division children div with its children
 	fillTaskDivision: function viz_fillTaskDivision(id, data, tableRow) {
 		// Loop through every part
-		for(var part_id in data) {
-			if(data.hasOwnProperty(part_id)) {
-				var partArray = data[part_id];
+		var parts = data.parts;
+		for(var part_id in parts) {
+			if(parts.hasOwnProperty(part_id)) {
+				var partArray = parts[part_id];
 				for(var i=0;i<partArray.length;i++) {
 					var partData = partArray[i];
 					var partDiv = viz.createPartDivision(part_id, partData);

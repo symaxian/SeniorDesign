@@ -40,7 +40,20 @@
 
 	<div id="record-div"></div>
 
-	<!-- Template -->
+
+	<!-- Record Template -->
+	<script type="text/html" id="CR-template">
+		<div style="position: relative">
+			<h3 class="CR-title" data-content="title"></h3>
+			<div class="CR-notice-count">
+				Notices: <span data-content="count"></span>
+			</div>
+		</div>
+		<div class="CR-notices"></div>
+	</script>
+
+
+	<!-- Part Template -->
 	<script type="text/html" id="part-template">
 		<!-- <img data-src="authorPicture" data-alt="author" data-link-wrap="authorPicture"/> -->
 		<div class="post-container">
@@ -72,6 +85,7 @@
 					<span data-content="status"></span>
 		</div>
 	</script>
+
 
 </body>
 </html>
