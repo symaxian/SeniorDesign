@@ -153,8 +153,20 @@ body {
 
 .part {
 	background-color: #BBFFFF;
-	padding: 4px;
 	margin: 4px;
 	font-family: sans-serif;
 	font-size: 8pt;
+}
+
+.part-id {
+	font-weight: bold;
+}
+
+.part-header {
+	padding: 4px;
+}
+
+.part-header:hover {
+	background-color: #DDFFFF;
+	cursor: pointer;
 }

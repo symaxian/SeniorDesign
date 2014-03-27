@@ -331,7 +331,7 @@ viz = {
 						for(var CT_id in tasks) {
 							if(tasks.hasOwnProperty(CT_id)) {
 								var CT = tasks[CT_id];
-								console.log(CT);
+								if(viz.log) console.log(CT);
 								viz.calculateTaskTime(CT);
 							}
 						}
@@ -384,7 +384,6 @@ viz = {
 		CT.maxCreated = maxCreated;
 		CT.minModified = minModified;
 		CT.maxModified = maxModified;
-
 	},
 
 	//
@@ -754,10 +753,10 @@ viz = {
 		}
 
 		var templateData = {};
-
 		for(var i=0;i<propertyNames.length;i++) {
 			templateData[propertyNames[i]] = data[propertyNames[i]];
 		}
+		templateData.id = id;
 
 		// $.addTemplateFormatter({
 		// 	upperCaseFormatter : function(value, template) {
@@ -775,6 +774,21 @@ viz = {
 		// });
 
 		$div.loadTemplate('#part-template', templateData);
+
+		var $header = $div.find('.part-header');
+		var $contentDiv = $div.find('.part-content');
+
+		$contentDiv.hide();
+
+		// Create the collapse/expand children button
+		$header.click(function() {
+			if($contentDiv.is(':visible')) {
+				$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+			}
+			else {
+				$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+			}
+		});
 
 		return div;
 
