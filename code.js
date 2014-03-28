@@ -46,7 +46,7 @@ viz = {
 				"http://plmuat2.ingerrand.com:8021/Windchill/servlet/TypeBasedIncludeServlet?oid=OR%3Awt.change2.WTChangeOrder2%3A17236793405&u8=1"
 					and
 				"((M0114)SHIP WITH KITS. OBSOLETE TLSP. THE BALL VALVE X13680518010 IS BEING REPLACED. THE VENDOR IS DISCONTINUING CURRENT VALVE AND REPLACING WITH A NEW VALVE. VALVE IS DIRECT SHIPPED TO CUSTOMER., Engineering Change Notice - ECO-0039613)"
-			JR: I'm unsure as to whether or not this will always be safe
+			JR: The new data should never have the ugly links in it, remove this later on
 		*/
 
 	data: {
@@ -259,10 +259,21 @@ viz = {
 			}
 			var CN = CR.notices[CN_id];
 
-			// JR: Until we decide on what to do with null tasks(CT), just use "null" as a task ID
-
 			// Check if CT_id is null
-			// if(CT_id !== 'null') {
+			if(CT_id === 'null') {
+
+				// CT is null, so this row defines the CN data
+				CN.task = row[index.Task];
+				CN.objectDescription = row[index.ObjectDescription];
+				CN.currentState = row[index.CurrentState];
+				CN.user = row[index.User];
+				CN.role = row[index.Role];
+				CN.created = new Date(row[index.Created]).valueOf();
+				CN.lastModified = new Date(row[index.LastModified]).valueOf();
+				CN.status = row[index.Status];
+
+			}
+			else {
 
 				// Create new CT object if needed
 				if(typeof CN.tasks[CT_id] !== 'object') {
@@ -274,35 +285,54 @@ viz = {
 				}
 				var CT = CN.tasks[CT_id];
 
-				// Create new part array if needed
-				if(typeof CT.parts[part_id] !== 'object') {
-					CT.parts[part_id] = [];
-					CT.partCount++;
+				// Check if part_id is null
+				if(part_id === 'null') {
+
+					// Part is null, this row defines the CT data
+					CT.task = row[index.Task];
+					CT.objectDescription = row[index.ObjectDescription];
+					CT.currentState = row[index.CurrentState];
+					CT.user = row[index.User];
+					CT.role = row[index.Role];
+					CT.created = new Date(row[index.Created]).valueOf();
+					CT.lastModified = new Date(row[index.LastModified]).valueOf();
+					CT.status = row[index.Status];
+
 				}
-				var part = CT.parts[part_id];
+				else {
 
-				// Add a new part piece object to the CT object
-				var partPiece = {
-					task: row[index.Task],
-					// actions: row[index.Actions],			JR: Ignored, always blank
-					objectDescription: row[index.ObjectDescription],
-					currentState: row[index.CurrentState],
-					user: row[index.User],
-					role: row[index.Role],
-					created: new Date(row[index.Created]).valueOf(),
-					lastModified: new Date(row[index.LastModified]).valueOf(),
-					status: row[index.Status]
-				};
+					// Create new part array if needed
+					if(typeof CT.parts[part_id] !== 'object') {
+						CT.parts[part_id] = [];
+						CT.partCount++;
+					}
+					var part = CT.parts[part_id];
 
-				if(viz.splitObjectDescription) {
-					var string = partPiece.objectDescription;
-					partPiece.link = string.split(' ')[0];
-					partPiece.objectDescription = string.substr(string.indexOf(' '));
+					// Add a new part piece object to the CT object
+					var partPiece = {
+						task: row[index.Task],
+						// actions: row[index.Actions],			JR: Ignored, always blank
+						objectDescription: row[index.ObjectDescription],
+						currentState: row[index.CurrentState],
+						user: row[index.User],
+						role: row[index.Role],
+						created: new Date(row[index.Created]).valueOf(),
+						lastModified: new Date(row[index.LastModified]).valueOf(),
+						status: row[index.Status]
+					};
+
+					// JR: TODO: Remove this once we know that the data will never have the ugly links in this columns
+					if(viz.splitObjectDescription) {
+						var string = partPiece.objectDescription;
+						partPiece.link = string.split(' ')[0];
+						partPiece.objectDescription = string.substr(string.indexOf(' '));
+					}
+
+					part.push(partPiece);
+
 				}
 
-				part.push(partPiece);
-
-			// }
+			}
 
 		}
 
@@ -331,7 +361,6 @@ viz = {
 						for(var CT_id in tasks) {
 							if(tasks.hasOwnProperty(CT_id)) {
 								var CT = tasks[CT_id];
-								if(viz.log) console.log(CT);
 								viz.calculateTaskTime(CT);
 							}
 						}
