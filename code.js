@@ -87,14 +87,14 @@ viz = {
 	//  isnt hidden underneath the stick header.
 	headerUpdated: function viz_headerUpdated() {
 		var h = $('#header')[0].offsetHeight + parseInt($('.CR').css('margin-top'), 10);
-		viz.console.log(h);
+		if(viz.log) console.log(h);
 		$('#record-div').css('margin-top', h);
 	},
 
 	loadData: function viz_loadData() {
-		viz.console.log('Loading data');
+		if(viz.log) console.log('Loading data');
 		$.get(viz.dataFilepath, function(data) {
-			viz.console.log('Data loaded');
+			if(viz.log) console.log('Data loaded');
 
 			// JR: TODO: Error handling if the file was not found
 
@@ -421,7 +421,7 @@ viz = {
 
 	generatePage: function viz_generatePage(json) {
 
-		viz.console.group('Generating page');
+		if(viz.log) console.group('Generating page');
 		if(viz.log) console.time('Generate Page');
 
 		$('#header-loading').show();
@@ -447,14 +447,14 @@ viz = {
 		// Call the headerUpdated method to fix the content margin
 		viz.headerUpdated();
 
-		viz.console.groupEnd();
+		if(viz.log) console.groupEnd();
 		if(viz.log) console.timeEnd('Generate Page');
 
 	},
 
 	// This method creates and returns a record division
 	createRecordDivision: function viz_createRecordDivision(id, data, expanded) {
-		viz.console.groupCollapsed('Created DIV for record: '+id);
+		if(viz.log) console.groupCollapsed('Created DIV for record: '+id);
 
 		// The expanded property defaults to false
 		if(typeof expanded !== 'boolean') {
@@ -503,7 +503,7 @@ viz = {
 			$childDiv.hide();
 		}
 
-		viz.console.groupEnd();
+		if(viz.log) console.groupEnd();
 
 		return div;
 
@@ -522,7 +522,7 @@ viz = {
 	},
 
 	createNoticeDivision: function viz_createNoticeDivision(id, data, expanded) {
-		viz.console.groupCollapsed('Created DIV for notice: '+id);
+		if(viz.log) console.groupCollapsed('Created DIV for notice: '+id);
 
 		// The expanded property defaults to false
 		if(typeof expanded !== 'boolean') {
@@ -571,7 +571,7 @@ viz = {
 			$childDiv.hide();
 		}
 
-		viz.console.groupEnd();
+		if(viz.log) console.groupEnd();
 
 		return div;
 
@@ -797,34 +797,6 @@ viz = {
 		});
 
 		return div;
-
-	},
-
-	console: {
-
-		log: function() {
-			if(typeof console === 'object' && viz.DEBUG) {
-				console.log.apply(console, arguments);
-			}
-		},
-
-		group: function() {
-			if(typeof console === 'object' && viz.DEBUG) {
-				console.group.apply(console, arguments);
-			}
-		},
-
-		groupCollapsed: function() {
-			if(typeof console === 'object' && viz.DEBUG) {
-				console.groupCollapsed.apply(console, arguments);
-			}
-		},
-
-		groupEnd: function() {
-			if(typeof console === 'object' && viz.DEBUG) {
-				console.groupEnd.apply(console, arguments);
-			}
-		}
 
 	}
 
