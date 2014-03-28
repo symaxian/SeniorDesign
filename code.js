@@ -85,10 +85,9 @@ viz = {
 
 	// This function needs to be called whenever the header changes height,
 	//  in order to update the change record top margin so that the top change
-	//  isnt hidden underneath the stick header.
+	//  record isnt hidden underneath the sticky header.
 	headerUpdated: function viz_headerUpdated() {
 		var h = $('#header')[0].offsetHeight + parseInt($('.CR').css('margin-top'), 10);
-		if(viz.log) console.log(h);
 		$('#record-div').css('margin-top', h);
 	},
 
@@ -108,32 +107,6 @@ viz = {
 			// Generate the page
 			viz.generatePage(viz.data.json);
 
-
-			// Set our data for the post
-			var post = {
-					author: 'Joe Bloggs',
-					date: '25th May 2013',
-					// authorPicture: 'SimpleExample/img/joeBloggs.gif',
-					post: 'This is the contents of my post'
-				};
-
-			$.addTemplateFormatter({
-				upperCaseFormatter : function(value, template) {
-						return value.toUpperCase();
-					},
-				lowerCaseFormatter : function(value, template) {
-						return value.toLowerCase();
-					},
-				sameCaseFormatter : function(value, template) {
-						if(template == 'upper') {
-							return value.toUpperCase();
-						}
-						return value.toLowerCase();
-					}
-			});
-
-			$('.script-template-container').loadTemplate('#part-template', post);
-
 		});
 	},
 
@@ -142,7 +115,7 @@ viz = {
 	//________________//
 
 	// This will parse the raw csv data into a 2d array
-	// The default delimiter is the comma
+	// The default delimiter is a comma
 	parseRawData: function viz_parseRawData(data, delimiter) {
 
 		delimiter = delimiter || ',';
@@ -190,7 +163,7 @@ viz = {
 				// When we capture this value, unescape any double quotes
 				strMatchedValue = arrMatches[2].replace(
 					globalDoubleQuoteRegEx,
-					"\""
+					'"'
 				);
 			}
 			else {
@@ -781,11 +754,6 @@ viz = {
 			'lastModified',
 			'status'
 		];
-
-		if(viz.splitObjectDescription) {
-			// dtData.push('Document Link');
-			// propertyNames.push('link');
-		}
 
 		var templateData = {};
 		for(var i=0;i<propertyNames.length;i++) {
