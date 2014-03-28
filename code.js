@@ -546,23 +546,6 @@ viz = {
 		var $title = $div.find('.CN-title');
 		var $childDiv = $div.find('.CN-tasks');
 
-
-
-		// // Create the division
-		// var div = document.createElement('div'),
-		// 	$div = $(div);
-		// div.className = 'change-notice';
-
-		// // Create a title
-		// var title = document.createElement('h4'),
-		// 	$title = $(title);
-		// $title.text('Change Notice: '+id);
-		// title.className = 'change-notice-title';
-
-		// // Create the children list div
-		// var childDiv = document.createElement('div'),
-		// 	$childDiv = $(childDiv);
-
 		// Create the collapse/expand children button
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
@@ -674,30 +657,24 @@ viz = {
 			expanded = false;
 		}
 
-		// Create the div
+
+		// Create the division
 		var div = document.createElement('div'),
 			$div = $(div);
-		div.className = 'change-task';
-		$div.attr('data-loaded', true);
+		div.className = 'CT';
+		$div.attr('data-loaded', expanded);
 
-		// Create the title
-		var title = document.createElement('h4'),
-			$title = $(title);
-		$title.text('Change Task: '+id);
-		title.className = 'change-task-title';
-		$div.append(title);
+		// Load the template
+		var templateData = {
+			title: 'Change Task: '+id,
+			count: data.partCount
+		};
+		$div.loadTemplate('#CT-template', templateData);
 
-		// Create the children list div
-		var childDiv = document.createElement('div'),
-			$childDiv = $(childDiv);
-
-		// Generate the part table
-		var $table = $.parseHTML('<table><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></table>'),
-			table = $table[0];
-		$childDiv.append(table);
-		// Get the first table row, to place the children into
-		var tableRow = table.childNodes[0].childNodes[0];
-
+		// Get the title and notices div
+		var $title = $div.find('.CT-title');
+		var $childDiv = $div.find('.CT-parts');
+		var tableRow = $div.find('#partRow')[0];
 
 		// Create the collapse/expand children button
 		$title.click(function() {
@@ -724,7 +701,7 @@ viz = {
 			$childDiv.hide();
 		}
 
-		$div.append(childDiv);
+		// $div.append(childDiv);
 
 		return div;
 
@@ -742,7 +719,7 @@ viz = {
 					var partDiv = viz.createPartDivision(part_id, partData);
 					// var partDiv = viz.createPartDivision(part_id+'['+i+']', partData);
 					var colIndex = viz.getColumnIndex(partData.task);
-					$(tableRow.childNodes[colIndex]).append(partDiv);
+					$(tableRow.children[colIndex]).append(partDiv);
 				}
 			}
 		}
