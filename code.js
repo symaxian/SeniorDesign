@@ -5,6 +5,7 @@
 		Null ID's
 			We need to decide what to do with null task ID's and null part ID's.
 			At the moment the string "null" is treated as the ID and pushed with the regular data.
+			RESOLVED: A null id means that the relevant row does not provide info on a part, but the CN/CT info
 
 		CN == CT
 			It seems like the change notice ID(CN) is always equal to the change task ID(CT).
@@ -279,7 +280,9 @@ viz = {
 				if(typeof CN.tasks[CT_id] !== 'object') {
 					CN.tasks[CT_id] = {
 						parts: {},
-						partCount: 0
+						partCount: 0,
+						blocks: {},
+						blockCount: 0
 					};
 					CN.taskCount++;
 				}
@@ -320,6 +323,21 @@ viz = {
 						lastModified: new Date(row[index.LastModified]).valueOf(),
 						status: row[index.Status]
 					};
+
+					// Also sort the part by "user-task" in the CT object
+					var userBlockId = partPiece.user + ':' + partPiece.task;
+					if(typeof CT.blocks[userBlockId] !== 'object') {
+						CT.blocks[userBlockId] = {
+							parts: {},
+							partCount: 0
+						};
+						CT.userCount++;
+					}
+					var userBlockData = CT.blocks[userBlockId];
+					if(typeof userBlockData.parts[part_id] !== 'object') {
+						userBlockData.parts[part_id] = [];
+					}
+					userBlockData.parts[part_id].push(partPiece);
 
 					// JR: TODO: Remove this once we know that the data will never have the ugly links in this columns
 					if(viz.splitObjectDescription) {
@@ -675,6 +693,7 @@ viz = {
 		var $title = $div.find('.CT-title');
 		var $childDiv = $div.find('.CT-parts');
 		var tableRow = $div.find('#partRow')[0];
+		var blockContainer = $div.find('.CT-block-container')[0];
 
 		// Create the collapse/expand children button
 		$title.click(function() {
@@ -683,7 +702,7 @@ viz = {
 			}
 			else {
 				if($div.attr('data-loaded') === 'false') {
-					viz.fillTaskDivision(id, data, tableRow);
+					viz.fillTaskDivision(id, data, tableRow, blockContainer);
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
@@ -695,7 +714,7 @@ viz = {
 
 		// Fill with parts if expanded, else hide the children div
 		if(expanded) {
-			viz.fillTaskDivision(id, data, tableRow);
+			viz.fillTaskDivision(id, data, tableRow, blockContainer);
 		}
 		else {
 			$childDiv.hide();
@@ -708,7 +727,7 @@ viz = {
 	},
 
 	// This method fills a task division children div with its children
-	fillTaskDivision: function viz_fillTaskDivision(id, data, tableRow) {
+	fillTaskDivision: function viz_fillTaskDivision(id, data, tableRow, blockContainer) {
 		// Loop through every part
 		var parts = data.parts;
 		for(var part_id in parts) {
@@ -723,6 +742,16 @@ viz = {
 				}
 			}
 		}
+		// Loop through the blocks
+		var blocks = data.blocks;
+		for(var block_id in blocks) {
+			if(blocks.hasOwnProperty(block_id)) {
+				var blockData = blocks[block_id];
+				var blockDiv = viz.createBlockDivision(block_id, blockData);
+				$(blockContainer).append(blockDiv);
+			}
+		}
+
 	},
 
 	createPartDivision: function viz_createPartDivision(id, data) {
@@ -797,6 +826,38 @@ viz = {
 		});
 
 		return div;
+
+	},
+
+	createBlockDivision: function viz_createBlockDivision(id, data) {
+
+		var div = document.createElement('div'),
+			$div = $(div);
+		div.className = 'block';
+
+		var templateData = {
+			user: id.split(':')[0],
+			task: id.split(':')[1]
+		};
+
+		$div.loadTemplate('#block-template', templateData);
+
+		var $header = $div.find('.block-header');
+		var $contentDiv = $div.find('.block-content');
+
+		$contentDiv.hide();
+
+		// Create the collapse/expand children button
+		$header.click(function() {
+			if($contentDiv.is(':visible')) {
+				$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+			}
+			else {
+				$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+			}
+		});
+
+		return $div;
 
 	}
 

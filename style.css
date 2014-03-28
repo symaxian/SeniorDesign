@@ -179,3 +179,25 @@ body {
 	background-color: #DDFFFF;
 	cursor: pointer;
 }
+
+/* Block */
+
+.block {
+	background-color: #BBFFFF;
+	margin: 12px;
+	font-family: sans-serif;
+	font-size: 10pt;
+}
+
+.block-header {
+	padding: 4px;
+}
+
+.block-user, .block-task {
+	font-weight: bold;
+}
+
+.block-header:hover {
+	background-color: #DDFFFF;
+	cursor: pointer;
+}
