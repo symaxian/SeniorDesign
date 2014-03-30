@@ -407,6 +407,7 @@ viz = {
 						viz.partStatus.push(stat);
 					}
 					
+<<<<<<< HEAD
 					//Grab the tasks
 					var taskPiece = partPiece.task;
 					if(viz.tasks.indexOf(taskPiece) === -1) {
@@ -415,6 +416,10 @@ viz = {
 					
 					//Grab the current states
 					var curStat = partPiece.currentState;
+=======
+					//Grab the current status
+					var curStat = partPiece.currentStatus;
+>>>>>>> 21883e61295a24864602df210e89bd12b165544f
 					if(viz.currentStates.indexOf(curStat) === -1) {
 						viz.currentStates.push(curStat);
 					}
@@ -455,6 +460,7 @@ viz = {
 		for (var i = 0; i < viz.partStatus.length; i++) {
             $("<option/>").attr("value", viz.partStatus[i].id).text(viz.partStatus[i]).appendTo($statusSelect);
 			}
+<<<<<<< HEAD
 		//Add Tasks to Tasks select filtering dropdown
 		for (var i = 0; i < viz.tasks.length; i++) {
             $("<option/>").attr("value", viz.tasks[i].id).text(viz.tasks[i]).appendTo($taskSelect);
@@ -463,6 +469,12 @@ viz = {
 		//Add currentStates to CurrentStatus select filtering dropdown
 		for (var i = 0; i < viz.currentStates.length; i++) {
             $("<option/>").attr("value", viz.currentStates[i].id).text(viz.currentStates[i]).appendTo($currentStateSelect);
+=======
+			
+		//Add currentStates to CurrentStatus select filtering dropdown
+		for (var i = 0; i < viz.currentStates.length; i++) {
+            //$("<option/>").attr("value", viz.currentStates[i].id).text(viz.currentStates[i]).appendTo($currentStateSelect);
+>>>>>>> 21883e61295a24864602df210e89bd12b165544f
 			}
 		
 		
