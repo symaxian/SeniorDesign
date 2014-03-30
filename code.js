@@ -94,7 +94,7 @@ viz = {
 		var h = $('#header')[0].offsetHeight + parseInt($('.CR').css('margin-top'), 10);
 		$('#record-div').css('margin-top', h);
 	},
-
+	
 	loadData: function viz_loadData() {
 		if(viz.log) console.log('Loading data');
 		$.get(viz.dataFilepath, function(data) {
@@ -441,12 +441,20 @@ viz = {
 		if(viz.log) console.time('Generate Page');
 		$('#header-loading').show();
 
-		
+
 		$userSelect = $("select[name='dropUser']");
 		$statusSelect=$("select[name='dropStatus']");
 		$taskSelect=$("select[name='dropTask']");
 		$currentStateSelect=$("select[name='dropCurrentState']");
 		
+		$fButton= $("button[name='filterButtton']");
+		$fButton.click(function(){
+					//TODO
+					//make a copy of the json data
+					//filter out using the dropdown values and add to copy
+					//generate page using new,filtered data using new data copy
+					viz.generatePage(viz.data.json);
+		});
 		
 		//Add user names to user select filtering dropdown
 		for (var i = 0; i < viz.users.length; i++) {
@@ -463,7 +471,7 @@ viz = {
             $("<option/>").attr("value", viz.tasks[i].id).text(viz.tasks[i]).appendTo($taskSelect);
 			}		
 		
-		//Add currentStates to CurrentStatus select filtering dropdown
+		//Add currentStates to CurrentStates select filtering dropdown
 		for (var i = 0; i < viz.currentStates.length; i++) {
             $("<option/>").attr("value", viz.currentStates[i].id).text(viz.currentStates[i]).appendTo($currentStateSelect);
 		}
