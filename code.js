@@ -58,6 +58,10 @@ viz = {
 		// Some storage for all the data, same data but different formats
 
 	users: [],
+	partStatus: [],
+	currentStates: [],
+	tasks: [],
+	
 
 	columnNames: [
 		'ObjectTypeIndicator',
@@ -396,6 +400,25 @@ viz = {
 					if(viz.users.indexOf(user) === -1) {
 						viz.users.push(user);
 					}
+					
+					//Grab the part status
+					var stat = partPiece.status;
+					if(viz.partStatus.indexOf(stat) === -1) {
+						viz.partStatus.push(stat);
+					}
+					
+					//Grab the tasks
+					var taskPiece = partPiece.task;
+					if(viz.tasks.indexOf(taskPiece) === -1) {
+						viz.tasks.push(taskPiece);
+					}
+					
+					//Grab the current states
+					var curStat = partPiece.currentState;
+					if(viz.currentStates.indexOf(curStat) === -1) {
+						viz.currentStates.push(curStat);
+					}
+					
 				}
 			}
 		}
@@ -414,9 +437,35 @@ viz = {
 
 		if(viz.log) console.group('Generating page');
 		if(viz.log) console.time('Generate Page');
-
 		$('#header-loading').show();
 
+		
+		$userSelect = $("select[name='dropUser']");
+		$statusSelect=$("select[name='dropStatus']");
+		$taskSelect=$("select[name='dropTask']");
+		$currentStateSelect=$("select[name='dropCurrentState']");
+		
+		
+		//Add user names to user select filtering dropdown
+		for (var i = 0; i < viz.users.length; i++) {
+            $("<option/>").attr("value", viz.users[i].id).text(viz.users[i]).appendTo($userSelect);
+			}
+			
+		//Add status to status select filtering dropdown
+		for (var i = 0; i < viz.partStatus.length; i++) {
+            $("<option/>").attr("value", viz.partStatus[i].id).text(viz.partStatus[i]).appendTo($statusSelect);
+			}
+		//Add Tasks to Tasks select filtering dropdown
+		for (var i = 0; i < viz.tasks.length; i++) {
+            $("<option/>").attr("value", viz.tasks[i].id).text(viz.tasks[i]).appendTo($taskSelect);
+			}		
+		
+		//Add currentStates to CurrentStatus select filtering dropdown
+		for (var i = 0; i < viz.currentStates.length; i++) {
+            $("<option/>").attr("value", viz.currentStates[i].id).text(viz.currentStates[i]).appendTo($currentStateSelect);
+			}
+		
+		
 		// Create a division that will contain CR's
 		var $div = $(document.createElement('div'));
 
