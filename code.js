@@ -789,7 +789,6 @@ viz = {
 			expanded = false;
 		}
 
-
 		// Create the division
 		var div = document.createElement('div'),
 			$div = $(div);
@@ -965,9 +964,11 @@ viz = {
 
 		$div.loadTemplate('#block-template', templateData);
 
+
 		var $header = $div.find('.block-header');
 		var $contentDiv = $div.find('.block-content');
 
+		// Hide the content
 		$contentDiv.hide();
 
 		// Create the collapse/expand children button
@@ -979,6 +980,28 @@ viz = {
 				$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 			}
 		});
+
+		// Fill the content div
+		var parts = data.parts;
+		for(var part_id in parts) {
+			// JR: FIXME: The parts are an array, but it seems that 
+			var part = parts[part_id][0];
+			$contentDiv.append(viz.createPartRow(part_id, part));
+		}
+
+
+		return $div;
+
+	},
+
+	createPartRow: function viz_createPartRow(id, data) {
+
+		var div = document.createElement('div'),
+			$div = $(div);
+
+		var templateData = data;
+
+		$div.loadTemplate('#part-row-template', templateData);
 
 		return $div;
 
