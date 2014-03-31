@@ -340,30 +340,21 @@ viz = {
 	},
 
 	calculateAllTaskTimes: function viz_calculateAllTaskTimes(json) {
-
 		// Loop through the records
 		var records = json.records;
 		for(var CR_id in records) {
-			if(records.hasOwnProperty(CR_id)) {
-				var CR = records[CR_id];
-				// Loop through the notices
-				var notices = CR.notices;
-				for(var CN_id in notices) {
-					if(notices.hasOwnProperty(CN_id)) {
-						var CN = notices[CN_id];
-						// Loop through the tasks
-						var tasks = CN.tasks;
-						for(var CT_id in tasks) {
-							if(tasks.hasOwnProperty(CT_id)) {
-								var CT = tasks[CT_id];
-								viz.calculateTaskTime(CT);
-							}
-						}
-					}
+			var CR = records[CR_id];
+			// Loop through the notices
+			var notices = CR.notices;
+			for(var CN_id in notices) {
+				var CN = notices[CN_id];
+				// Loop through the tasks
+				var tasks = CN.tasks;
+				for(var CT_id in tasks) {
+					viz.calculateTaskTime(tasks[CT_id]);
 				}
 			}
 		}
-
 	},
 
 	calculateTaskTime: function viz_calculateTaskTimes(CT) {
@@ -374,54 +365,53 @@ viz = {
 		// Loop through the parts
 		var parts = CT.parts;
 		for(var part_id in parts) {
-			if(parts.hasOwnProperty(part_id)) {
-				var part = parts[part_id];
-				// Loop through the part pieces
-				for(var partPieceIndex=0; partPieceIndex<part.length; partPieceIndex++) {
-					// Get the part piece data and the times
-					var partPiece = part[partPieceIndex];
-					var created = partPiece.created,
-						modified = partPiece.lastModified;
-					// Update the min/max times
-					if(created < minCreated) {
-						minCreated = created;
-					}
-					else if(created > maxCreated) {
-						maxCreated = created;
-					}
-					if(modified < minModified) {
-						minModified = modified;
-					}
-					else if(modified > maxModified) {
-						maxModified = modified;
-					}
-					// Grab the part user
-					var user = partPiece.user;
-					if(viz.users.indexOf(user) === -1) {
-						viz.users.push(user);
-					}
-					
-					//Grab the part status
-					var stat = partPiece.status;
-					if(viz.partStatus.indexOf(stat) === -1) {
-						viz.partStatus.push(stat);
-					}
-					
+			var part = parts[part_id];
+			// Loop through the part pieces
+			for(var partPieceIndex=0; partPieceIndex<part.length; partPieceIndex++) {
 
-					//Grab the tasks
-					var taskPiece = partPiece.task;
-					if(viz.tasks.indexOf(taskPiece) === -1) {
-						viz.tasks.push(taskPiece);
-					}
-					
-					//Grab the current states
-					var curStat = partPiece.currentState;
+				// Get the part piece data and the times
+				var partPiece = part[partPieceIndex];
+				var created = partPiece.created,
+					modified = partPiece.lastModified;
 
-					if(viz.currentStates.indexOf(curStat) === -1) {
-						viz.currentStates.push(curStat);
-					}
-					
+				// Update the min/max times
+				if(created < minCreated) {
+					minCreated = created;
 				}
+				else if(created > maxCreated) {
+					maxCreated = created;
+				}
+				if(modified < minModified) {
+					minModified = modified;
+				}
+				else if(modified > maxModified) {
+					maxModified = modified;
+				}
+
+				// Grab the part user
+				var user = partPiece.user;
+				if(viz.users.indexOf(user) === -1) {
+					viz.users.push(user);
+				}
+
+				//Grab the part status
+				var status = partPiece.status;
+				if(viz.partStatus.indexOf(status) === -1) {
+					viz.partStatus.push(status);
+				}
+
+				//Grab the tasks
+				var task = partPiece.task;
+				if(viz.tasks.indexOf(task) === -1) {
+					viz.tasks.push(task);
+				}
+
+				//Grab the current states
+				var currentState = partPiece.currentState;
+				if(viz.currentStates.indexOf(currentState) === -1) {
+					viz.currentStates.push(currentState);
+				}
+
 			}
 		}
 		// Set the data on the CT
@@ -436,60 +426,56 @@ viz = {
 	//___________________//
 
 	generatePage: function viz_generatePage(json) {
-
 		
 		if(viz.log) console.group('Generating page');
 		if(viz.log) console.time('Generate Page');
 		$('#header-loading').show();
 
-
 		$userSelect = $("select[name='dropUser']");
-		$statusSelect=$("select[name='dropStatus']");
-		$taskSelect=$("select[name='dropTask']");
-		$currentStateSelect=$("select[name='dropCurrentState']");
+		$statusSelect = $("select[name='dropStatus']");
+		$taskSelect = $("select[name='dropTask']");
+		$currentStateSelect = $("select[name='dropCurrentState']");
 		
 		$("#filterButton").click(function(){
-				var $CRs = $div.find('.CR');
-				
-				if(viz.log) console.log('filterButton clicked');
-				//filter out using the dropdown values and add to copy	
-				$userSelected=$userSelect.val();
-				$statusSelected=$statusSelect.val();
-				$taskSelected=$taskSelect.val();					
-				$currentStateSelected=$currentStateSelect.val();
-					
-				//if(viz.log) console.log($userSelected);
-				//if(viz.log) console.log($statusSelected);
-				//if(viz.log) console.log($taskSelected);
-				//if(viz.log) console.log($currentStateSelected);
-					
-				//hide/unhide relevant records
-					
-				for(record_id in viz.data.json.records){
-					var CR = viz.data.json.records[record_id];
-					viz.filterCR(record_id, CR);
-				}
+
+			//filter out using the dropdown values and add to copy	
+			$userSelected = $userSelect.val();
+			$statusSelected = $statusSelect.val();
+			$taskSelected = $taskSelect.val();
+			$currentStateSelected = $currentStateSelect.val();
+
+			//if(viz.log) console.log($userSelected);
+			//if(viz.log) console.log($statusSelected);
+			//if(viz.log) console.log($taskSelected);
+			//if(viz.log) console.log($currentStateSelected);
+			
+			// Filter through the records
+			for(var record_id in viz.data.json.records){
+				var CR = viz.data.json.records[record_id];
+				viz.filterCR(record_id, CR);
+			}
 					
 		});
 		
-		
+		var i;
+
 		//Add user names to user select filtering dropdown
-		for (var i = 0; i < viz.users.length; i++) {
+		for (i = 0; i < viz.users.length; i++) {
             $("<option/>").attr("value", viz.users[i].id).text(viz.users[i]).appendTo($userSelect);
-			}
+		}
 			
 		//Add status to status select filtering dropdown
-		for (var i = 0; i < viz.partStatus.length; i++) {
+		for (i = 0; i < viz.partStatus.length; i++) {
             $("<option/>").attr("value", viz.partStatus[i].id).text(viz.partStatus[i]).appendTo($statusSelect);
-			}
+		}
 
 		//Add Tasks to Tasks select filtering dropdown
-		for (var i = 0; i < viz.tasks.length; i++) {
+		for (i = 0; i < viz.tasks.length; i++) {
             $("<option/>").attr("value", viz.tasks[i].id).text(viz.tasks[i]).appendTo($taskSelect);
-			}		
-		
+		}
+
 		//Add currentStates to CurrentStates select filtering dropdown
-		for (var i = 0; i < viz.currentStates.length; i++) {
+		for (i = 0; i < viz.currentStates.length; i++) {
             $("<option/>").attr("value", viz.currentStates[i].id).text(viz.currentStates[i]).appendTo($currentStateSelect);
 		}
 			
@@ -500,14 +486,11 @@ viz = {
 		var records = json.records;
 		// Loop through every change record
 		for(var CR_id in records) {
-			if(records.hasOwnProperty(CR_id)) {
-				var CR_data = records[CR_id];
-				$div.append(viz.createRecordDivision(CR_id, CR_data));
-			}
+			$div.append(viz.createRecordDivision(CR_id, records[CR_id]));
 		}
 
 		$('#header-loading').hide();
-		$('#header-table').show();
+		// $('#header-table').show();
 
 		// Append the div to the record-div
 		$('#record-div').append($div);
@@ -520,153 +503,187 @@ viz = {
 
 	},
 
-	filterCR: function viz_filterCR(id,data){
-		var $div = $('div[data-id="'+id+'"]');
-		var visible = false;
-		var isCurrentlyVisible = $div.is(':visible');
-		
-		var filterWord = $("#filterBox").val();
-		var regx = new RegExp(filterWord,"i")
+	//
+	//  Filtering
+	//_____________//
 
-		if( id.indexOf(filterWord) != -1)
-		{
-			visible =true;
+	filterCR: function viz_filterCR(id, data){
+		var $div = $('div[data-cr="'+id+'"]');
+		var visible = false;
+		
+		var filterWord = $('#filterBox').val();
+		var regx = new RegExp(filterWord, 'i');
+
+		if(regx.test(id)) {
+			visible = true;
+			// $div.find('.CR-title').addClass('highlighted');
+		}
+		else {
+			// $div.find('.CR-title').removeClass('highlighted');
 		}
 		
 		for(var notice_id in data.notices){
-			if(viz.filterCN(notice_id,data.notices[notice_id]))
-				visible =true;
+			if(viz.filterCN(id, notice_id, data.notices[notice_id])) {
+				visible = true;
+			}
 		}
 	
-		if(viz.log)console.log(visible);
-		if(visible !== isCurrentlyVisible) {
-			if(visible) {
-				$div.show();
-			}
-			else {
-				$div.hide();
-			}
+		if(visible) {
+			viz.expandCR(id);
+			$div.show();
+		}
+		else {
+			$div.hide();
+			viz.collapseCR(id);
 		}
 		
 	},
 
-	filterCN: function viz_filterCN(id,data){
-	
-		var $div = $('div[data-id="'+id+'"]');
-		var visible = false;
-		var isCurrentlyVisible = $div.is(':visible');
-		
-		var filterWord = $("#filterBox").val();
-		var regx = new RegExp(filterWord,"i")
+	filterCN: function viz_filterCN(CR_id, id, data){
 
-		if( id.indexOf(filterWord) != -1)
-		{
-			visible =true;
-		};
-		
+		var $div = $('div[data-cn="'+id+'"]');
+		var visible = false;
+
+		var filterWord = $('#filterBox').val();
+		var regx = new RegExp(filterWord, 'i');
+
+		if(regx.test(id)) {
+			visible = true;
+		}
+
 		//filter through properties of the change notice for the filterWord
-		if(data.role)
-			visible = visible || (data.role.indexOf(regx) != -1);
-		if(data.currentState)
-			visible = visible || (data.currentState.indexOf(regx) != -1);
-		if(data.task)
-			visible = visible || (data.task.indexOf(regx) != -1);
-		if(data.status)
-			visible = visible || (data.status.indexOf(regx) != -1);
+		if(data.role)				visible = visible || regx.test(data.role);
+		if(data.currentState)		visible = visible || regx.test(data.currentState);
+		if(data.task)				visible = visible || regx.test(data.task);
+		if(data.status)				visible = visible || regx.test(data.status);
+		if(data.user)				visible = visible || regx.test(data.user);
+		if(data.objectDescription)	visible = visible || regx.test(data.objectDescription);
 		
-		
-		for(var task_id in data.tasks){
-			if(viz.filterCT(task_id,data.tasks[task_id]))
-				visible =true;
-		}
-	
-		//show/hide
-		if(visible !== isCurrentlyVisible) {
-			if(visible) {
-				$div.show();
-			}
-			else {
-				$div.hide();
+		var tasks = data.tasks;
+		for(var task_id in tasks) {
+			if(viz.filterCT(CR_id, id, task_id, tasks[task_id])) {
+				visible = true;
 			}
 		}
+
+		if(visible) {
+			viz.expandCN(CR_id, id);
+			$div.show();
+		}
+		else {
+			$div.hide();
+			viz.collapseCN(CR_id, id);
+		}
 		
-		if(viz.log)console.log(visible);
 		return visible;
 	
 	},
 
-	filterCT: function viz_filterCT(id,data){
+	filterCT: function viz_filterCT(CR_id, CN_id, id, data) {
 		
-		var $div = $('div[data-id="'+id+'"]');
+		var $div = $('div[data-ct="'+id+'"]');
 		var visible = false;
-		var isCurrentlyVisible = $div.is(':visible');
 		
-		var filterWord = $("#filterBox").val();
-		var regx = new RegExp(filterWord,"i")
+		var filterWord = $('#filterBox').val();
+		var regx = new RegExp(filterWord, 'i');
 
-		if( id.indexOf(filterWord) != -1)
-		{
-			visible =true;
-		};
-		
-		//if(viz.log)console.log(data);
+		if(regx.test(id)) {
+			visible = true;
+		}
+
 		//filter through properties of the change task for the filterWord
-		if(data.role)
-			visible = visible || (data.role.indexOf(regx) != -1);
-		if(data.status)
-			visible = visible || (data.status.indexOf(regx) != -1);
-		if(data.task)
-			visible = visible || (data.task.indexOf(regx) != -1);
-		if(data.user)
-			visible = visible || (data.user.indexOf(regx) != -1);
-		if(data.objectDescription)
-			visible = visible || (data.objectDescription.indexOf(regx) != -1);
-		if(data.currentState)
-			visible = visible || (data.currentState.indexOf(regx) != -1);
-		
-		
+		if(data.role)				visible = visible || regx.test(data.role);
+		if(data.currentState)		visible = visible || regx.test(data.currentState);
+		if(data.task)				visible = visible || regx.test(data.task);
+		if(data.status)				visible = visible || regx.test(data.status);
+		if(data.user)				visible = visible || regx.test(data.user);
+		if(data.objectDescription)	visible = visible || regx.test(data.objectDescription);
+
+		// Filter each block
 		for(var block_id in data.blocks){
-			if(viz.filterBlock(block_id,data.blocks[block_id]))
-				visible =true;
+			if(viz.filterBlock(CR_id, CN_id, id, block_id, data.blocks[block_id])) {
+				visible = true;
+			}
 		}
 	
 		//show/hide
-		if(visible !== isCurrentlyVisible) {
-			if(visible) {
-				$div.show();
-			}
-			else {
-				$div.hide();
-			}
+		if(visible) {
+			viz.expandCT(CR_id, CN_id, id);
+			$div.show();
+		}
+		else {
+			$div.hide();
+			viz.collapseCT(CR_id, CN_id, id);
 		}
 
-		if(viz.log)console.log(visible);
 		return visible;
 		
 	},
 	
-	filterBlock: function viz_filterBlock(id,data){
-		if(viz.log)console.log(data);
+	filterBlock: function viz_filterBlock(CR_id, CN_id, CT_id, id, data) {
 		
+		var $div = $('div[data-ct="'+id+'"]');
+		var visible = false;
+
+		var filterWord = $('#filterBox').val();
+		var regx = new RegExp(filterWord, 'i');
+
+		// JR: TODO: Block filtering
+
 		return false;
+
 	},
 
-	
-	// This method creates and returns a record division
-	createRecordDivision: function viz_createRecordDivision(id, data, expanded) {
-		if(viz.log) console.groupCollapsed('Created DIV for record: '+id);
+	//
+	//  Change Record
+	//_________________//
 
-		// The expanded property defaults to false
-		if(typeof expanded !== 'boolean') {
-			expanded = false;
+	loadCR: function(id) {
+		// Get the elements
+		var $div = $('div[data-cr="'+id+'"]');
+		// Check if not loaded
+		if($div.attr('data-loaded') === 'false') {
+			// Fill the content
+			var data = viz.data.json.records[id];
+			viz.fillRecordDivision(id, data, $div.find('.CR-notices'));
+			// Set the loaded flag
+			$div.attr('data-loaded', 'true');
 		}
+	},
+
+	collapseCR: function(id) {
+		// Get the elements
+		var $div = $('div[data-cr="'+id+'"]');
+		var $childDiv = $div.find('.CR-notices');
+		// Collapse it
+		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
+		$div.removeClass('CR-expanded');
+	},
+
+	expandCR: function(id) {
+		// Get the element
+		var $div = $('div[data-cr="'+id+'"]');
+		// If not found, load it and try again
+		if(!$div.length) {
+			viz.loadCR(id);
+			return expandCR(id);
+		}
+		var $childDiv = $div.find('.CR-notices');
+		// Expand it
+		$childDiv.show('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
+		$div.addClass('CR-expanded');
+	},
+
+	// This method creates and returns a record division
+	createRecordDivision: function viz_createRecordDivision(id, data) {
+		if(viz.log) console.groupCollapsed('Created DIV for record: '+id);
 
 		// Create the division
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'CR';
-		$div.attr('data-loaded', expanded);
-		$div.attr('data-id', id);
+		$div.attr('data-loaded', 'false');
+		$div.attr('data-cr', id);
 
 		// Load the template
 		var templateData = {
@@ -682,27 +699,15 @@ viz = {
 		// Create the collapse/expand click handler
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
-				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
-				$div.removeClass('CR-expanded');
+				viz.collapseCR(id);
 			}
 			else {
-				if($div.attr('data-loaded') === 'false') {
-					viz.fillRecordDivision(id, data, $childDiv);
-					$div.attr('data-loaded', 'true');
-				}
-				$childDiv.show('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
-				$div.addClass('CR-expanded');
+				viz.expandCR(id);
 			}
 		});
 
-		// If expanded, load the children, else hide the child div
-		if(expanded) {
-			viz.fillRecordDivision(id, data, $childDiv);
-			$div.addClass('CR-expanded');
-		}
-		else {
-			$childDiv.hide();
-		}
+		// Hide the content
+		$childDiv.hide();
 
 		if(viz.log) console.groupEnd();
 
@@ -714,27 +719,65 @@ viz = {
 		var notices = data.notices;
 		// Loop through every change notice
 		for(var CN_id in notices) {
-			if(notices.hasOwnProperty(CN_id)) {
-				var CN_data = notices[CN_id];
-				$childDiv.append(viz.createNoticeDivision(CN_id, CN_data));
-			}
+			$childDiv.append(viz.createNoticeDivision(id, CN_id, notices[CN_id]));
 		}
 	},
 
-	createNoticeDivision: function viz_createNoticeDivision(id, data, expanded) {
-		if(viz.log) console.groupCollapsed('Created DIV for notice: '+id);
+	//
+	//  Change Notice
+	//_________________//
 
-		// The expanded property defaults to false
-		if(typeof expanded !== 'boolean') {
-			expanded = false;
+	loadCN: function(CR_id, id) {
+		// Get the elements
+		var $div = $('div[data-cn="'+id+'"]');
+		var $childDiv = $div.find('.CN-tasks');
+		// If not found, load the CR and try again
+		if($div.length === 0) {
+			viz.loadCR(CR_id);
+			return viz.loadCN(CR_id, id);
 		}
+		// Check if not loaded
+		if($div.attr('data-loaded') === 'false') {
+			// Fill the content
+			var data = viz.data.json.records[CR_id].notices[id];
+			viz.fillNoticeDivision(CR_id, id, data, $childDiv);
+			// Set the loaded flag
+			$div.attr('data-loaded', 'true');
+		}
+	},
+
+	collapseCN: function(CR_id, id) {
+		// Get the elements
+		var $div = $('div[data-cn="'+id+'"]');
+		var $childDiv = $div.find('.CN-tasks');
+		// Collapse it
+		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$div.removeClass('CN-expanded');
+	},
+
+	expandCN: function(CR_id, id) {
+		// Get the elements
+		var $div = $('div[data-cn="'+id+'"]');
+		var $childDiv = $div.find('.CN-tasks');
+		// If not found, load the CN and try again
+		if(!$div.length) {
+			viz.loadCN(CR_id, id);
+			return viz.expandCN(CR_id, id);
+		}
+		// Expand it
+		$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$div.addClass('CN-expanded');
+	},
+
+	createNoticeDivision: function viz_createNoticeDivision(CR_id, id, data) {
+		if(viz.log) console.groupCollapsed('Created DIV for notice: '+id);
 
 		// Create the division
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'CN';
-		$div.attr('data-loaded', expanded);
-		$div.attr('data-id', id);
+		$div.attr('data-loaded', 'false');
+		$div.attr('data-cn', id);
 
 		// Load the template
 		var templateData = {
@@ -759,27 +802,15 @@ viz = {
 		// Create the collapse/expand children button
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
-				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				$div.removeClass('CN-expanded');
+				viz.collapseCN(CR_id, id);
 			}
 			else {
-				if($div.attr('data-loaded') === 'false') {
-					viz.fillNoticeDivision(id, data, $childDiv);
-					$div.attr('data-loaded', 'true');
-				}
-				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				$div.addClass('CN-expanded');
+				viz.expandCN(CR_id, id);
 			}
 		});
 
-		// If expanded, load the children, else hide the child div
-		if(expanded) {
-			viz.fillNoticeDivision(id, data, $childDiv);
-			$div.addClass('CN-expanded');
-		}
-		else {
-			$childDiv.hide();
-		}
+		// Hide the content
+		$childDiv.hide();
 
 		if(viz.log) console.groupEnd();
 
@@ -788,14 +819,11 @@ viz = {
 	},
 
 	// This method fills a notice division children div with its children
-	fillNoticeDivision: function viz_fillNoticeDivision(id, data, $childDiv) {
+	fillNoticeDivision: function viz_fillNoticeDivision(CR_id, id, data, $childDiv) {
 		// Loop through every change task
 		var tasks = data.tasks;
 		for(var CT_id in tasks) {
-			if(tasks.hasOwnProperty(CT_id)) {
-				var CT_data = tasks[CT_id];
-				$childDiv.append(viz.createTaskDivision(CT_id, CT_data));
-			}
+			$childDiv.append(viz.createTaskDivision(CR_id, id, CT_id, tasks[CT_id]));
 		}
 	},
 
@@ -859,20 +887,68 @@ viz = {
 		return 0;
 	},
 
-	// This method creates and returns a task division
-	createTaskDivision: function viz_createTaskDivision(id, data, expanded) {
+	//
+	//  Change Task
+	//_______________//
 
-		// The expanded property defaults to false
-		if(typeof expanded !== 'boolean') {
-			expanded = false;
+	loadCT: function(CR_id, CN_id, id) {
+		// Get the elements
+		var $div = $('div[data-ct="'+id+'"]');
+		// If not found, load the CN and try again
+		if(!$div.length) {
+			viz.loadCN(CR_id, CN_id);
+			return viz.loadCT(CR_id, CN_id, id);
 		}
+		// Check if not loaded
+		if($div.attr('data-loaded') === 'false') {
+			// Fill the content
+			var data = viz.data.json.records[CR_id].notices[CN_id].tasks[id];
+			viz.fillTaskDivision(id, data, data.tableRow, $div.find('.CT-block-container'));
+			// Set the loaded flag
+			$div.attr('data-loaded', 'true');
+		}
+	},
+
+	collapseCT: function(CR_id, CN_id, id) {
+		// Get the elements
+		var $div = $('div[data-ct="'+id+'"]');
+		var $childDiv = $div.find('.CT-parts');
+		var $blockContainer = $div.find('.CT-block-container');
+		// Collapse it
+		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$blockContainer.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$div.removeClass('CT-expanded');
+	},
+
+	expandCT: function(CR_id, CN_id, id) {
+		// Ensure it's loaded
+		viz.loadCT(CR_id, CN_id, id);
+		// Get the elements
+		var $div = $('div[data-ct="'+id+'"]');
+		// If not found, load the CN and try again
+		if(!$div.length) {
+			viz.loadCT(CR_id, CN_id, id);
+			return viz.expandCT(CR_id, CN_id, id);
+		}
+		// Get the content elements
+		var $childDiv = $div.find('.CT-parts');
+		var $blockContainer = $div.find('.CT-block-container');
+		// Expand it
+		$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$blockContainer.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$div.addClass('CT-expanded');
+	},
+
+	// This method creates and returns a task division
+	createTaskDivision: function viz_createTaskDivision(CR_id, CN_id, id, data) {
+		if(viz.log) console.groupCollapsed('Created DIV for task: '+id);
 
 		// Create the division
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'CT';
-		$div.attr('data-loaded', expanded);
-		$div.attr('data-id', id);
+		$div.attr('data-loaded', 'false');
+		$div.attr('data-ct', id);
 
 		// Load the template
 		var templateData = {
@@ -891,6 +967,7 @@ viz = {
 		// JR: TODO: Since we're moving to the block view rather than parts, remove this part div eventually
 		var $childDiv = $div.find('.CT-parts');
 		var tableRow = $div.find('#partRow')[0];
+		data.tableRow = tableRow;
 
 		var $blockContainer = $div.find('.CT-block-container'),
 			blockContainer = $blockContainer[0];
@@ -898,63 +975,43 @@ viz = {
 		// Create the collapse/expand children button
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
-				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				$blockContainer.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				$div.removeClass('CT-expanded');
+				viz.collapseCT(CR_id, CN_id, id);
 			}
 			else {
-				if($div.attr('data-loaded') === 'false') {
-					viz.fillTaskDivision(id, data, tableRow, blockContainer);
-					$div.attr('data-loaded', 'true');
-				}
-				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				$blockContainer.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				$div.addClass('CT-expanded');
+				viz.expandCT(CR_id, CN_id, id);
 			}
 		});
 
-		// Set the data loaded attribute
-		$div.attr('data-loaded', expanded);
+		// Hide the content
+		$childDiv.hide();
+		$blockContainer.hide();
 
-		// Fill with parts if expanded, else hide the children div
-		if(expanded) {
-			viz.fillTaskDivision(id, data, tableRow, blockContainer);
-		}
-		else {
-			$childDiv.hide();
-			$blockContainer.hide();
-		}
-
-		// $div.append(childDiv);
+		if(viz.log) console.groupEnd();
 
 		return div;
 
 	},
 
-	// This method fills a task division children div with its children
+	// This method fills a task division content div with its content
 	fillTaskDivision: function viz_fillTaskDivision(id, data, tableRow, blockContainer) {
 		// Loop through every part
 		var parts = data.parts;
 		for(var part_id in parts) {
-			if(parts.hasOwnProperty(part_id)) {
-				var partArray = parts[part_id];
-				for(var i=0;i<partArray.length;i++) {
-					var partData = partArray[i];
-					var partDiv = viz.createPartDivision(part_id, partData);
-					// var partDiv = viz.createPartDivision(part_id+'['+i+']', partData);
-					var colIndex = viz.getColumnIndex(partData.task);
-					$(tableRow.children[colIndex]).append(partDiv);
-				}
+			var partArray = parts[part_id];
+			for(var i=0;i<partArray.length;i++) {
+				var partData = partArray[i];
+				var partDiv = viz.createPartDivision(part_id, partData);
+				// var partDiv = viz.createPartDivision(part_id+'['+i+']', partData);
+				var colIndex = viz.getColumnIndex(partData.task);
+				$(tableRow.children[colIndex]).append(partDiv);
 			}
 		}
 		// Loop through the blocks
-		var blocks = data.blocks;
+		var $blockContainer = $(blockContainer),
+			blocks = data.blocks;
 		for(var block_id in blocks) {
-			if(blocks.hasOwnProperty(block_id)) {
-				var blockData = blocks[block_id];
-				var blockDiv = viz.createBlockDivision(block_id, blockData);
-				$(blockContainer).append(blockDiv);
-			}
+			var blockDiv = viz.createBlockDivision(block_id, blocks[block_id]);
+			$blockContainer.append(blockDiv);
 		}
 
 	},
