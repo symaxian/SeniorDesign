@@ -521,47 +521,61 @@ viz = {
 	},
 
 	filterCR: function viz_filterCR(id,data){
+		var $div = $('div[data-id="'+id+'"]');
 		var visible = false;
-		var isCurrentlyVisible = $('div[data-id="'+id+'"]').is(':visible');
+		var isCurrentlyVisible = $div.is(':visible');
 		
-		var filterWord = $("#filterBox").text();
+		var filterWord = $("#filterBox").val();
 		if( id.indexOf(filterWord) != -1)
 		{
 			visible =true;
 		}
 		
-		for(notice_id in data.notices){
+		for(var notice_id in data.notices){
 			if(viz.filterCN(notice_id,data.notices[notice_id]))
 				visible =true;
 		}
 	
 		if(visible !== isCurrentlyVisible) {
-			$('#'+id).visible(visible);
+			if(visible) {
+				$div.show();
+			}
+			else {
+				$div.hide();
+			}
 		}
-	
-	
-	},
-	filterCN: function viz_filterCN(id,data){
-		var visible = false;
-		var isCurrentlyVisible = $('div[data-id="'+id+'"]').visible();
 		
-		var filterWord = $("#filterBox").text();
+	},
+
+	filterCN: function viz_filterCN(id,data){
+		var $div = $('div[data-id="'+id+'"]');
+		var visible = false;
+		var isCurrentlyVisible = $div.is(':visible');
+		
+		var filterWord = $("#filterBox").val();
 		if( id.indexOf(filterWord) != -1)
 		{
 			visible =true;
 		}
 		
-		for(task_id in data.tasks){
+		for(var task_id in data.tasks){
 			if(viz.filterCT(task_id,data.tasks[task_id]))
 				visible =true;
 		}
 	
 		if(visible !== isCurrentlyVisible) {
-			$('#'+id).visible(visible);
+			if(visible) {
+				$div.show();
+			}
+			else {
+				$div.hide();
+			}
 		}
+
 		return visible;
 	
 	},
+
 	filterCT: function viz_filterCT(id,data){return false;},
 	
 	// This method creates and returns a record division
