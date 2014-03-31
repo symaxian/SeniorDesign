@@ -115,6 +115,11 @@ body {
 	position: absolute;
 }
 
+.CN-data {
+	margin-left: 10px;
+	font-size: 11pt;
+}
+
 /* Change Task */
 
 .CT {
@@ -166,6 +171,11 @@ body {
 	top: 0;
 	right: 0;
 	position: absolute;
+}
+
+.CT-data {
+	margin-left: 10px;
+	font-size: 11pt;
 }
 
 /* Part */

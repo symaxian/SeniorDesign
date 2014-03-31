@@ -719,7 +719,6 @@ viz = {
 				$childDiv.append(viz.createNoticeDivision(CN_id, CN_data));
 			}
 		}
-
 	},
 
 	createNoticeDivision: function viz_createNoticeDivision(id, data, expanded) {
@@ -739,9 +738,18 @@ viz = {
 
 		// Load the template
 		var templateData = {
-			title: 'Change Notice: '+id,
-			count: data.taskCount
+			id: id,
+			count: data.taskCount,
+			user: data.user,
+			currentState: data.currentState,
+			objectDescription: data.objectDescription
 		};
+
+		// MCO's dont seem to have data
+		if(typeof data.task === 'string') {
+			templateData.task =  ' - '+data.task;
+		}
+
 		$div.loadTemplate('#CN-template', templateData);
 
 		// Get the title and notices div
@@ -859,7 +867,6 @@ viz = {
 			expanded = false;
 		}
 
-
 		// Create the division
 		var div = document.createElement('div'),
 			$div = $(div);
@@ -869,21 +876,30 @@ viz = {
 
 		// Load the template
 		var templateData = {
-			title: 'Change Task: '+id,
-			count: data.partCount
+			id: id,
+			count: data.partCount,
+			user: data.user,
+			task: data.task,
+			currentState: data.currentState,
+			objectDescription: data.objectDescription
 		};
 		$div.loadTemplate('#CT-template', templateData);
 
 		// Get the title and notices div
 		var $title = $div.find('.CT-title');
+
+		// JR: TODO: Since we're moving to the block view rather than parts, remove this part div eventually
 		var $childDiv = $div.find('.CT-parts');
 		var tableRow = $div.find('#partRow')[0];
-		var blockContainer = $div.find('.CT-block-container')[0];
+
+		var $blockContainer = $div.find('.CT-block-container'),
+			blockContainer = $blockContainer[0];
 
 		// Create the collapse/expand children button
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
 				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				$blockContainer.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 				$div.removeClass('CT-expanded');
 			}
 			else {
@@ -892,6 +908,7 @@ viz = {
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				$blockContainer.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 				$div.addClass('CT-expanded');
 			}
 		});
@@ -905,6 +922,7 @@ viz = {
 		}
 		else {
 			$childDiv.hide();
+			$blockContainer.hide();
 		}
 
 		// $div.append(childDiv);
@@ -1024,9 +1042,11 @@ viz = {
 
 		$div.loadTemplate('#block-template', templateData);
 
+
 		var $header = $div.find('.block-header');
 		var $contentDiv = $div.find('.block-content');
 
+		// Hide the content
 		$contentDiv.hide();
 
 		// Create the collapse/expand children button
@@ -1038,6 +1058,28 @@ viz = {
 				$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 			}
 		});
+
+		// Fill the content div
+		var parts = data.parts;
+		for(var part_id in parts) {
+			// JR: FIXME: The parts are an array, but it seems that 
+			var part = parts[part_id][0];
+			$contentDiv.append(viz.createPartRow(part_id, part));
+		}
+
+
+		return $div;
+
+	},
+
+	createPartRow: function viz_createPartRow(id, data) {
+
+		var div = document.createElement('div'),
+			$div = $(div);
+
+		var templateData = data;
+
+		$div.loadTemplate('#part-row-template', templateData);
 
 		return $div;
 
