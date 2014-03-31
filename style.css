@@ -88,6 +88,11 @@ body {
 	margin: 4px;
 }
 
+/* This class is added as a slight visual fix when expanded */
+.CN-expanded {
+	padding-bottom: 2px;
+}
+
 .CN-title {
 	margin: 0;
 	padding: 12px;
@@ -116,6 +121,11 @@ body {
 	background-color: #99FF99;
 	margin: 4px;
 	border-radius: 8px;
+}
+
+/* This class is added as a slight visual fix when expanded */
+.CT-expanded {
+	padding-bottom: 2px;
 }
 
 .CT-title {

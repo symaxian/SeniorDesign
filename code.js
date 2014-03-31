@@ -517,6 +517,7 @@ viz = {
 			$div = $(div);
 		div.className = 'CR';
 		$div.attr('data-loaded', expanded);
+		$div.attr('data-id', id);
 
 		// Load the template
 		var templateData = {
@@ -585,6 +586,7 @@ viz = {
 			$div = $(div);
 		div.className = 'CN';
 		$div.attr('data-loaded', expanded);
+		$div.attr('data-id', id);
 
 		// Load the template
 		var templateData = {
@@ -601,7 +603,7 @@ viz = {
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
 				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				$div.removeClass('change-notice-expanded');
+				$div.removeClass('CN-expanded');
 			}
 			else {
 				if($div.attr('data-loaded') === 'false') {
@@ -609,14 +611,14 @@ viz = {
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				$div.addClass('change-notice-expanded');
+				$div.addClass('CN-expanded');
 			}
 		});
 
 		// If expanded, load the children, else hide the child div
 		if(expanded) {
 			viz.fillNoticeDivision(id, data, $childDiv);
-			$div.addClass('change-notice-expanded');
+			$div.addClass('CN-expanded');
 		}
 		else {
 			$childDiv.hide();
@@ -714,6 +716,7 @@ viz = {
 			$div = $(div);
 		div.className = 'CT';
 		$div.attr('data-loaded', expanded);
+		$div.attr('data-id', id);
 
 		// Load the template
 		var templateData = {
@@ -732,6 +735,7 @@ viz = {
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
 				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				$div.removeClass('CT-expanded');
 			}
 			else {
 				if($div.attr('data-loaded') === 'false') {
@@ -739,6 +743,7 @@ viz = {
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				$div.addClass('CT-expanded');
 			}
 		});
 
