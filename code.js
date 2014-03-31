@@ -458,10 +458,10 @@ viz = {
 				$taskSelected=$taskSelect.val();					
 				$currentStateSelected=$currentStateSelect.val();
 					
-				if(viz.log) console.log($userSelected);
-				if(viz.log) console.log($statusSelected);
-				if(viz.log) console.log($taskSelected);
-				if(viz.log) console.log($currentStateSelected);
+				//if(viz.log) console.log($userSelected);
+				//if(viz.log) console.log($statusSelected);
+				//if(viz.log) console.log($taskSelected);
+				//if(viz.log) console.log($currentStateSelected);
 					
 				//hide/unhide relevant records
 					
@@ -526,6 +526,8 @@ viz = {
 		var isCurrentlyVisible = $div.is(':visible');
 		
 		var filterWord = $("#filterBox").val();
+		var regx = new RegExp(filterWord,"i")
+
 		if( id.indexOf(filterWord) != -1)
 		{
 			visible =true;
@@ -536,6 +538,7 @@ viz = {
 				visible =true;
 		}
 	
+		if(viz.log)console.log(visible);
 		if(visible !== isCurrentlyVisible) {
 			if(visible) {
 				$div.show();
@@ -548,21 +551,86 @@ viz = {
 	},
 
 	filterCN: function viz_filterCN(id,data){
+	
 		var $div = $('div[data-id="'+id+'"]');
 		var visible = false;
 		var isCurrentlyVisible = $div.is(':visible');
 		
 		var filterWord = $("#filterBox").val();
+		var regx = new RegExp(filterWord,"i")
+
 		if( id.indexOf(filterWord) != -1)
 		{
 			visible =true;
-		}
+		};
+		
+		//filter through properties of the change notice for the filterWord
+		if(data.role)
+			visible = visible || (data.role.indexOf(regx) != -1);
+		if(data.currentState)
+			visible = visible || (data.currentState.indexOf(regx) != -1);
+		if(data.task)
+			visible = visible || (data.task.indexOf(regx) != -1);
+		if(data.status)
+			visible = visible || (data.status.indexOf(regx) != -1);
+		
 		
 		for(var task_id in data.tasks){
 			if(viz.filterCT(task_id,data.tasks[task_id]))
 				visible =true;
 		}
 	
+		//show/hide
+		if(visible !== isCurrentlyVisible) {
+			if(visible) {
+				$div.show();
+			}
+			else {
+				$div.hide();
+			}
+		}
+		
+		if(viz.log)console.log(visible);
+		return visible;
+	
+	},
+
+	filterCT: function viz_filterCT(id,data){
+		
+		var $div = $('div[data-id="'+id+'"]');
+		var visible = false;
+		var isCurrentlyVisible = $div.is(':visible');
+		
+		var filterWord = $("#filterBox").val();
+		var regx = new RegExp(filterWord,"i")
+
+		if( id.indexOf(filterWord) != -1)
+		{
+			visible =true;
+		};
+		
+		//if(viz.log)console.log(data);
+		//filter through properties of the change task for the filterWord
+		if(data.role)
+			visible = visible || (data.role.indexOf(regx) != -1);
+		if(data.status)
+			visible = visible || (data.status.indexOf(regx) != -1);
+		if(data.task)
+			visible = visible || (data.task.indexOf(regx) != -1);
+		if(data.user)
+			visible = visible || (data.user.indexOf(regx) != -1);
+		if(data.objectDescription)
+			visible = visible || (data.objectDescription.indexOf(regx) != -1);
+		if(data.currentState)
+			visible = visible || (data.currentState.indexOf(regx) != -1);
+		
+		
+		for(var block_id in data.blocks){
+			if(viz.filterBlock(block_id,data.blocks[block_id]))
+				visible =true;
+		}
+	
+		//show/hide
 		if(visible !== isCurrentlyVisible) {
 			if(visible) {
 				$div.show();
@@ -572,11 +640,17 @@ viz = {
 			}
 		}
 
+		if(viz.log)console.log(visible);
 		return visible;
+		
+	},
 	
+	filterBlock: function viz_filterBlock(id,data){
+		if(viz.log)console.log(data);
+		
+		return false;
 	},
 
-	filterCT: function viz_filterCT(id,data){return false;},
 	
 	// This method creates and returns a record division
 	createRecordDivision: function viz_createRecordDivision(id, data, expanded) {
