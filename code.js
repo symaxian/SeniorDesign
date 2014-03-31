@@ -437,6 +437,7 @@ viz = {
 
 	generatePage: function viz_generatePage(json) {
 
+		
 		if(viz.log) console.group('Generating page');
 		if(viz.log) console.time('Generate Page');
 		$('#header-loading').show();
@@ -447,14 +448,30 @@ viz = {
 		$taskSelect=$("select[name='dropTask']");
 		$currentStateSelect=$("select[name='dropCurrentState']");
 		
-		$fButton= $("button[name='filterButtton']");
-		$fButton.click(function(){
-					//TODO
-					//make a copy of the json data
-					//filter out using the dropdown values and add to copy
-					//generate page using new,filtered data using new data copy
-					viz.generatePage(viz.data.json);
+		$("#filterButton").click(function(){
+				var $CRs = $div.find('.CR');
+				
+				if(viz.log) console.log('filterButton clicked');
+				//filter out using the dropdown values and add to copy	
+				$userSelected=$userSelect.val();
+				$statusSelected=$statusSelect.val();
+				$taskSelected=$taskSelect.val();					
+				$currentStateSelected=$currentStateSelect.val();
+					
+				if(viz.log) console.log($userSelected);
+				if(viz.log) console.log($statusSelected);
+				if(viz.log) console.log($taskSelected);
+				if(viz.log) console.log($currentStateSelected);
+					
+				//hide/unhide relevant records
+					
+				for(record_id in viz.data.json.records){
+					var CR = viz.data.json.records[record_id];
+					viz.filterCR(record_id, CR);
+				}
+					
 		});
+		
 		
 		//Add user names to user select filtering dropdown
 		for (var i = 0; i < viz.users.length; i++) {
@@ -503,6 +520,50 @@ viz = {
 
 	},
 
+	filterCR: function viz_filterCR(id,data){
+		var visible = false;
+		var isCurrentlyVisible = $('div[data-id="'+id+'"]').is(':visible');
+		
+		var filterWord = $("#filterBox").text();
+		if( id.indexOf(filterWord) != -1)
+		{
+			visible =true;
+		}
+		
+		for(notice_id in data.notices){
+			if(viz.filterCN(notice_id,data.notices[notice_id]))
+				visible =true;
+		}
+	
+		if(visible !== isCurrentlyVisible) {
+			$('#'+id).visible(visible);
+		}
+	
+	
+	},
+	filterCN: function viz_filterCN(id,data){
+		var visible = false;
+		var isCurrentlyVisible = $('div[data-id="'+id+'"]').visible();
+		
+		var filterWord = $("#filterBox").text();
+		if( id.indexOf(filterWord) != -1)
+		{
+			visible =true;
+		}
+		
+		for(task_id in data.tasks){
+			if(viz.filterCT(task_id,data.tasks[task_id]))
+				visible =true;
+		}
+	
+		if(visible !== isCurrentlyVisible) {
+			$('#'+id).visible(visible);
+		}
+		return visible;
+	
+	},
+	filterCT: function viz_filterCT(id,data){return false;},
+	
 	// This method creates and returns a record division
 	createRecordDivision: function viz_createRecordDivision(id, data, expanded) {
 		if(viz.log) console.groupCollapsed('Created DIV for record: '+id);
