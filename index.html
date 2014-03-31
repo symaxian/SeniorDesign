@@ -90,24 +90,37 @@
 	<!-- Change Notice Template -->
 	<script type="text/html" id="CN-template">
 		<div style="position: relative">
-			<h3 class="CN-title" data-content="title"></h3>
+			<h3 class="CN-title"><span data-content="id"></span> - <span data-content="task"></span></h3>
 			<div class="CN-task-count">
 				Tasks: <span data-content="count"></span>
 			</div>
 		</div>
-		<div class="CN-tasks"></div>
+		<div class="CN-tasks">
+			<!-- JR: TODO: Present this data in a better fashion -->
+			<div class="CN-data">
+				<strong>User:</strong> <span data-content="user"></span><br>
+				<strong>State:</strong> <span data-content="currentState"></span><br>
+				<strong>Description:</strong> <span data-content="objectDescription"></span><br>
+			</div>
+		</div>
 	</script>
 
 
 	<!-- Change Task Template -->
 	<script type="text/html" id="CT-template">
 		<div style="position: relative">
-			<h3 class="CT-title" data-content="title"></h3>
+			<h3 class="CT-title"><span data-content="id"></span> - <span data-content="task"></span></h3>
 			<div class="CT-part-count">
 				Parts: <span data-content="count"></span>
 			</div>
 		</div>
 		<div class="CT-parts">
+			<!-- JR: TODO: Present this data in a better fashion -->
+			<div class="CT-data">
+				<strong>User:</strong> <span data-content="user"></span><br>
+				<strong>State:</strong> <span data-content="currentState"></span><br>
+				<strong>Description:</strong> <span data-content="objectDescription"></span><br>
+			</div>
 			<table>
 				<tbody>
 					<tr id="partRow">

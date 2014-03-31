@@ -665,8 +665,12 @@ viz = {
 
 		// Load the template
 		var templateData = {
-			title: 'Change Notice: '+id,
-			count: data.taskCount
+			id: id,
+			count: data.taskCount,
+			user: data.user,
+			task: data.task,
+			currentState: data.currentState,
+			objectDescription: data.objectDescription
 		};
 		$div.loadTemplate('#CN-template', templateData);
 
@@ -795,21 +799,30 @@ viz = {
 
 		// Load the template
 		var templateData = {
-			title: 'Change Task: '+id,
-			count: data.partCount
+			id: id,
+			count: data.partCount,
+			user: data.user,
+			task: data.task,
+			currentState: data.currentState,
+			objectDescription: data.objectDescription
 		};
 		$div.loadTemplate('#CT-template', templateData);
 
 		// Get the title and notices div
 		var $title = $div.find('.CT-title');
+
+		// JR: TODO: Since we're moving to the block view rather than parts, remove this part div eventually
 		var $childDiv = $div.find('.CT-parts');
 		var tableRow = $div.find('#partRow')[0];
-		var blockContainer = $div.find('.CT-block-container')[0];
+
+		var $blockContainer = $div.find('.CT-block-container'),
+			blockContainer = $blockContainer[0];
 
 		// Create the collapse/expand children button
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
 				$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				$blockContainer.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 				$div.removeClass('CT-expanded');
 			}
 			else {
@@ -818,6 +831,7 @@ viz = {
 					$div.attr('data-loaded', 'true');
 				}
 				$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				$blockContainer.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 				$div.addClass('CT-expanded');
 			}
 		});
@@ -831,6 +845,7 @@ viz = {
 		}
 		else {
 			$childDiv.hide();
+			$blockContainer.hide();
 		}
 
 		// $div.append(childDiv);
