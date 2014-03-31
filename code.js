@@ -343,13 +343,11 @@ viz = {
 		// Loop through the records
 		var records = json.records;
 		for(var CR_id in records) {
-			var CR = records[CR_id];
 			// Loop through the notices
-			var notices = CR.notices;
+			var notices = records[CR_id].notices;
 			for(var CN_id in notices) {
-				var CN = notices[CN_id];
 				// Loop through the tasks
-				var tasks = CN.tasks;
+				var tasks = notices[CN_id].tasks;
 				for(var CT_id in tasks) {
 					viz.calculateTaskTime(tasks[CT_id]);
 				}
@@ -448,7 +446,10 @@ viz = {
 			//if(viz.log) console.log($statusSelected);
 			//if(viz.log) console.log($taskSelected);
 			//if(viz.log) console.log($currentStateSelected);
-			
+
+			var filterText = $('#filterBox').val();
+			viz.filterRegex = new RegExp(filterText, 'i');
+
 			// Filter through the records
 			for(var record_id in viz.data.json.records){
 				var CR = viz.data.json.records[record_id];
@@ -511,10 +512,8 @@ viz = {
 		var $div = $('div[data-cr="'+id+'"]');
 		var visible = false;
 		
-		var filterWord = $('#filterBox').val();
-		var regx = new RegExp(filterWord, 'i');
-
-		if(regx.test(id)) {
+		// JR: TODO: Highlighting of matched text
+		if(viz.filterRegex.test(id)) {
 			visible = true;
 			// $div.find('.CR-title').addClass('highlighted');
 		}
@@ -544,20 +543,17 @@ viz = {
 		var $div = $('div[data-cn="'+id+'"]');
 		var visible = false;
 
-		var filterWord = $('#filterBox').val();
-		var regx = new RegExp(filterWord, 'i');
-
-		if(regx.test(id)) {
+		if(viz.filterRegex.test(id)) {
 			visible = true;
 		}
 
 		//filter through properties of the change notice for the filterWord
-		if(data.role)				visible = visible || regx.test(data.role);
-		if(data.currentState)		visible = visible || regx.test(data.currentState);
-		if(data.task)				visible = visible || regx.test(data.task);
-		if(data.status)				visible = visible || regx.test(data.status);
-		if(data.user)				visible = visible || regx.test(data.user);
-		if(data.objectDescription)	visible = visible || regx.test(data.objectDescription);
+		if(data.role)				visible = visible || viz.filterRegex.test(data.role);
+		if(data.currentState)		visible = visible || viz.filterRegex.test(data.currentState);
+		if(data.task)				visible = visible || viz.filterRegex.test(data.task);
+		if(data.status)				visible = visible || viz.filterRegex.test(data.status);
+		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
+		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
 		
 		var tasks = data.tasks;
 		for(var task_id in tasks) {
@@ -583,21 +579,18 @@ viz = {
 		
 		var $div = $('div[data-ct="'+id+'"]');
 		var visible = false;
-		
-		var filterWord = $('#filterBox').val();
-		var regx = new RegExp(filterWord, 'i');
 
-		if(regx.test(id)) {
+		if(viz.filterRegex.test(id)) {
 			visible = true;
 		}
 
 		//filter through properties of the change task for the filterWord
-		if(data.role)				visible = visible || regx.test(data.role);
-		if(data.currentState)		visible = visible || regx.test(data.currentState);
-		if(data.task)				visible = visible || regx.test(data.task);
-		if(data.status)				visible = visible || regx.test(data.status);
-		if(data.user)				visible = visible || regx.test(data.user);
-		if(data.objectDescription)	visible = visible || regx.test(data.objectDescription);
+		if(data.role)				visible = visible || viz.filterRegex.test(data.role);
+		if(data.currentState)		visible = visible || viz.filterRegex.test(data.currentState);
+		if(data.task)				visible = visible || viz.filterRegex.test(data.task);
+		if(data.status)				visible = visible || viz.filterRegex.test(data.status);
+		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
+		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
 
 		// Filter each block
 		for(var block_id in data.blocks){
@@ -625,9 +618,6 @@ viz = {
 		var $div = $('div[data-ct="'+id+'"]');
 		var visible = false;
 
-		var filterWord = $('#filterBox').val();
-		var regx = new RegExp(filterWord, 'i');
-
 		// JR: TODO: Block filtering
 
 		return false;
@@ -639,7 +629,7 @@ viz = {
 	//_________________//
 
 	loadCR: function(id) {
-		// Get the elements
+		// Get the element
 		var $div = $('div[data-cr="'+id+'"]');
 		// Check if not loaded
 		if($div.attr('data-loaded') === 'false') {
@@ -663,11 +653,6 @@ viz = {
 	expandCR: function(id) {
 		// Get the element
 		var $div = $('div[data-cr="'+id+'"]');
-		// If not found, load it and try again
-		if(!$div.length) {
-			viz.loadCR(id);
-			return expandCR(id);
-		}
 		var $childDiv = $div.find('.CR-notices');
 		// Expand it
 		$childDiv.show('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
@@ -728,9 +713,8 @@ viz = {
 	//_________________//
 
 	loadCN: function(CR_id, id) {
-		// Get the elements
+		// Get the element
 		var $div = $('div[data-cn="'+id+'"]');
-		var $childDiv = $div.find('.CN-tasks');
 		// If not found, load the CR and try again
 		if($div.length === 0) {
 			viz.loadCR(CR_id);
@@ -740,7 +724,7 @@ viz = {
 		if($div.attr('data-loaded') === 'false') {
 			// Fill the content
 			var data = viz.data.json.records[CR_id].notices[id];
-			viz.fillNoticeDivision(CR_id, id, data, $childDiv);
+			viz.fillNoticeDivision(CR_id, id, data, $div.find('.CN-tasks'));
 			// Set the loaded flag
 			$div.attr('data-loaded', 'true');
 		}
@@ -756,15 +740,15 @@ viz = {
 	},
 
 	expandCN: function(CR_id, id) {
-		// Get the elements
+		// Get the element
 		var $div = $('div[data-cn="'+id+'"]');
-		var $childDiv = $div.find('.CN-tasks');
 		// If not found, load the CN and try again
 		if(!$div.length) {
 			viz.loadCN(CR_id, id);
 			return viz.expandCN(CR_id, id);
 		}
 		// Expand it
+		var $childDiv = $div.find('.CN-tasks');
 		$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 		$div.addClass('CN-expanded');
 	},
@@ -921,8 +905,6 @@ viz = {
 	},
 
 	expandCT: function(CR_id, CN_id, id) {
-		// Ensure it's loaded
-		viz.loadCT(CR_id, CN_id, id);
 		// Get the elements
 		var $div = $('div[data-ct="'+id+'"]');
 		// If not found, load the CN and try again
