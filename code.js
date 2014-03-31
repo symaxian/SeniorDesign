@@ -645,7 +645,6 @@ viz = {
 				$childDiv.append(viz.createNoticeDivision(CN_id, CN_data));
 			}
 		}
-
 	},
 
 	createNoticeDivision: function viz_createNoticeDivision(id, data, expanded) {
@@ -668,10 +667,15 @@ viz = {
 			id: id,
 			count: data.taskCount,
 			user: data.user,
-			task: data.task,
 			currentState: data.currentState,
 			objectDescription: data.objectDescription
 		};
+
+		// MCO's dont seem to have data
+		if(typeof data.task === 'string') {
+			templateData.task =  ' - '+data.task;
+		}
+
 		$div.loadTemplate('#CN-template', templateData);
 
 		// Get the title and notices div
