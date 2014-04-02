@@ -651,6 +651,8 @@ viz = {
 	},
 
 	expandCR: function(id) {
+		// Ensure it's loaded
+		viz.loadCR(id);
 		// Get the element
 		var $div = $('div[data-cr="'+id+'"]');
 		var $childDiv = $div.find('.CR-notices');
@@ -740,13 +742,10 @@ viz = {
 	},
 
 	expandCN: function(CR_id, id) {
+		// Ensure it's loaded
+		viz.loadCN(CR_id, id);
 		// Get the element
 		var $div = $('div[data-cn="'+id+'"]');
-		// If not found, load the CN and try again
-		if(!$div.length) {
-			viz.loadCN(CR_id, id);
-			return viz.expandCN(CR_id, id);
-		}
 		// Expand it
 		var $childDiv = $div.find('.CN-tasks');
 		$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
@@ -905,13 +904,10 @@ viz = {
 	},
 
 	expandCT: function(CR_id, CN_id, id) {
+		// Ensure it's loaded
+		viz.loadCT(CR_id, CN_id, id);
 		// Get the elements
 		var $div = $('div[data-ct="'+id+'"]');
-		// If not found, load the CN and try again
-		if(!$div.length) {
-			viz.loadCT(CR_id, CN_id, id);
-			return viz.expandCT(CR_id, CN_id, id);
-		}
 		// Get the content elements
 		var $childDiv = $div.find('.CT-parts');
 		var $blockContainer = $div.find('.CT-block-container');
