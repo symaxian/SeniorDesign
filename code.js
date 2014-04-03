@@ -419,6 +419,7 @@ viz = {
 		CT.maxModified = maxModified;
 	},
 
+	
 	//
 	//  Page Generation
 	//___________________//
@@ -429,36 +430,30 @@ viz = {
 		if(viz.log) console.time('Generate Page');
 		$('#header-loading').show();
 
+		//add filter button functionality
+		$("#filterButton").click(function(){ 
+			viz.filterPage(json);
+		});
+
+		//add reset button functionality
+		$("#resetButton").click(function(){ 
+			viz.resetPage(json);
+		});
+		
+		//if enter key pressed, filter
+		$('#filterBox').on("keypress", function(e) {
+        	if (e.keyCode == 13) {
+        		viz.filterPage(json);
+        	}
+		});
+
+		var i;
+
 		$userSelect = $("select[name='dropUser']");
 		$statusSelect = $("select[name='dropStatus']");
 		$taskSelect = $("select[name='dropTask']");
 		$currentStateSelect = $("select[name='dropCurrentState']");
 		
-		$("#filterButton").click(function(){
-
-			//filter out using the dropdown values and add to copy	
-			$userSelected = $userSelect.val();
-			$statusSelected = $statusSelect.val();
-			$taskSelected = $taskSelect.val();
-			$currentStateSelected = $currentStateSelect.val();
-
-			//if(viz.log) console.log($userSelected);
-			//if(viz.log) console.log($statusSelected);
-			//if(viz.log) console.log($taskSelected);
-			//if(viz.log) console.log($currentStateSelected);
-
-			var filterText = $('#filterBox').val();
-			viz.filterRegex = new RegExp(filterText, 'i');
-
-			// Filter through the records
-			for(var record_id in viz.data.json.records){
-				var CR = viz.data.json.records[record_id];
-				viz.filterCR(record_id, CR);
-			}
-					
-		});
-		
-		var i;
 
 		//Add user names to user select filtering dropdown
 		for (i = 0; i < viz.users.length; i++) {
@@ -479,8 +474,8 @@ viz = {
 		for (i = 0; i < viz.currentStates.length; i++) {
             $("<option/>").attr("value", viz.currentStates[i].id).text(viz.currentStates[i]).appendTo($currentStateSelect);
 		}
-			
-		
+
+
 		// Create a division that will contain CR's
 		var $div = $(document.createElement('div'));
 
@@ -493,8 +488,8 @@ viz = {
 		$('#header-loading').hide();
 		// $('#header-table').show();
 
-		// Append the div to the record-div
-		$('#record-div').append($div);
+		// Append the div t
+				$('#record-div').append($div);
 
 		// Call the headerUpdated method to fix the content margin
 		viz.headerUpdated();
@@ -505,8 +500,44 @@ viz = {
 	},
 
 	//
+	//  Reset
+	//
+
+	resetPage: function viz_resetPage(json) {
+
+		$('#filterBox').val("");
+
+		//show all records
+		var $div;
+		for(var id in viz.data.json.records){
+			$div = $('div[data-cr="'+id+'"]');
+			$div.show();
+		}		
+		// Collapse the records
+		for(var record_id in viz.data.json.records){
+			var CR = viz.data.json.records[record_id];
+			viz.collapseCR(record_id);
+		}
+
+					
+	},
+
+
+	//
 	//  Filtering
 	//_____________//
+
+	filterPage: function viz_filterPage(json) {
+
+		var filterText = $('#filterBox').val();
+		viz.filterRegex = new RegExp(filterText, 'i');
+
+		// Filter through the records
+		for(var record_id in viz.data.json.records){
+			var CR = viz.data.json.records[record_id];
+			viz.filterCR(record_id, CR);
+		}
+	},
 
 	filterCR: function viz_filterCR(id, data){
 		var $div = $('div[data-cr="'+id+'"]');
