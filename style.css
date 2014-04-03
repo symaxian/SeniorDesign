@@ -76,6 +76,10 @@ body {
 	position: absolute;
 }
 
+.highlighted {
+	background-color: #F0F;
+}
+
 /*.CR-collapsed {
 	border-radius: 8px 8px 0 0;
 }*/
@@ -119,6 +123,7 @@ body {
 	margin-left: 10px;
 	font-size: 11pt;
 }
+
 
 /* Change Task */
 
@@ -177,6 +182,7 @@ body {
 	margin-left: 10px;
 	font-size: 11pt;
 }
+
 
 /* Part */
 

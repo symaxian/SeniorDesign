@@ -517,6 +517,7 @@ viz = {
 		for(var record_id in viz.data.json.records){
 			var CR = viz.data.json.records[record_id];
 			viz.collapseCR(record_id);
+
 		}
 
 					
@@ -546,10 +547,12 @@ viz = {
 		// JR: TODO: Highlighting of matched text
 		if(viz.filterRegex.test(id)) {
 			visible = true;
-			// $div.find('.CR-title').addClass('highlighted');
+			$div.addClass('highlighted');
+			
 		}
 		else {
-			// $div.find('.CR-title').removeClass('highlighted');
+			$div.removeClass('highlighted');
+		
 		}
 		
 		for(var notice_id in data.notices){
@@ -561,6 +564,7 @@ viz = {
 		if(visible) {
 			viz.expandCR(id);
 			$div.show();
+			
 		}
 		else {
 			$div.hide();
@@ -576,6 +580,10 @@ viz = {
 
 		if(viz.filterRegex.test(id)) {
 			visible = true;
+			$div.addClass('highlighted');
+		}
+		else{
+			$div.removeClass('highlighted');
 		}
 
 		//filter through properties of the change notice for the filterWord
@@ -600,6 +608,7 @@ viz = {
 		else {
 			$div.hide();
 			viz.collapseCN(CR_id, id);
+			
 		}
 		
 		return visible;
@@ -613,6 +622,10 @@ viz = {
 
 		if(viz.filterRegex.test(id)) {
 			visible = true;
+			$div.addClass('highlighted');
+		}
+		else{
+			$div.removeClass('highlighted');
 		}
 
 		//filter through properties of the change task for the filterWord
@@ -638,7 +651,7 @@ viz = {
 		else {
 			$div.hide();
 			viz.collapseCT(CR_id, CN_id, id);
-		}
+			}
 
 		return visible;
 		
