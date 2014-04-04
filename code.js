@@ -449,6 +449,8 @@ viz = {
 
 		var i;
 
+		/*
+		//dropdown filters
 		$userSelect = $("select[name='dropUser']");
 		$statusSelect = $("select[name='dropStatus']");
 		$taskSelect = $("select[name='dropTask']");
@@ -475,6 +477,7 @@ viz = {
             $("<option/>").attr("value", viz.currentStates[i].id).text(viz.currentStates[i]).appendTo($currentStateSelect);
 		}
 
+		*/
 
 		// Create a division that will contain CR's
 		var $div = $(document.createElement('div'));
@@ -547,11 +550,11 @@ viz = {
 		// JR: TODO: Highlighting of matched text
 		if(viz.filterRegex.test(id)) {
 			visible = true;
-			$div.addClass('highlighted');
+			//$div.addClass('highlighted');
 			
 		}
 		else {
-			$div.removeClass('highlighted');
+			//$div.removeClass('highlighted');
 		
 		}
 		
@@ -580,10 +583,11 @@ viz = {
 
 		if(viz.filterRegex.test(id)) {
 			visible = true;
-			$div.addClass('highlighted');
+			
+			//$div.addClass('highlighted');
 		}
 		else{
-			$div.removeClass('highlighted');
+			//$div.removeClass('highlighted');
 		}
 
 		//filter through properties of the change notice for the filterWord
@@ -622,10 +626,10 @@ viz = {
 
 		if(viz.filterRegex.test(id)) {
 			visible = true;
-			$div.addClass('highlighted');
+			//$div.addClass('highlighted');
 		}
 		else{
-			$div.removeClass('highlighted');
+			//$div.removeClass('highlighted');
 		}
 
 		//filter through properties of the change task for the filterWord
