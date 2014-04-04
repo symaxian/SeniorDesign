@@ -221,7 +221,8 @@ viz = {
 			if(typeof json.records[CR_id] !== 'object') {
 				json.records[CR_id] = {
 					notices: {},
-					noticeCount: 0
+					noticeCount: 0,
+					loaded: false
 				};
 				json.recordCount++;
 			}
@@ -231,7 +232,8 @@ viz = {
 			if(typeof CR.notices[CN_id] !== 'object') {
 				CR.notices[CN_id] = {
 					tasks: {},
-					taskCount: 0
+					taskCount: 0,
+					loaded: false
 				};
 				CR.noticeCount++;
 			}
@@ -259,7 +261,8 @@ viz = {
 						parts: {},
 						partCount: 0,
 						blocks: {},
-						blockCount: 0
+						blockCount: 0,
+						loaded: false
 					};
 					CN.taskCount++;
 				}
@@ -431,20 +434,20 @@ viz = {
 		$('#header-loading').show();
 
 		//add filter button functionality
-		$("#filterButton").click(function(){ 
+		$("#filterButton").click(function(){
 			viz.filterPage(json);
 		});
 
 		//add reset button functionality
-		$("#resetButton").click(function(){ 
+		$("#resetButton").click(function(){
 			viz.resetPage(json);
 		});
 		
 		//if enter key pressed, filter
 		$('#filterBox').on("keypress", function(e) {
-        	if (e.keyCode == 13) {
-        		viz.filterPage(json);
-        	}
+			if (e.keyCode == 13) {
+				viz.filterPage(json);
+			}
 		});
 
 		var i;
@@ -489,10 +492,10 @@ viz = {
 		}
 
 		$('#header-loading').hide();
-		// $('#header-table').show();
+		$('#header-table').show();
 
 		// Append the div t
-				$('#record-div').append($div);
+		$('#record-div').append($div);
 
 		// Call the headerUpdated method to fix the content margin
 		viz.headerUpdated();
@@ -504,25 +507,24 @@ viz = {
 
 	//
 	//  Reset
-	//
+	//_________//
 
-	resetPage: function viz_resetPage(json) {
+	resetPage: function viz_resetPage() {
 
-		$('#filterBox').val("");
+		$('#filterBox').val('');
 
-		//show all records
-		var $div;
-		for(var id in viz.data.json.records){
-			$div = $('div[data-cr="'+id+'"]');
-			$div.show();
-		}		
-		// Collapse the records
-		for(var record_id in viz.data.json.records){
-			var CR = viz.data.json.records[record_id];
-			viz.collapseCR(record_id);
-
+		// Get all the CR divs
+		var CRs = $('[data-cr]');
+		// Show the divs
+		CRs.show();
+		// Collapse the CRs, including children
+		for(var i=0;i<CRs.length;i++) {
+			viz.collapseCR($(CRs[i]).attr('data-cr'), true);
 		}
 
+		// Show all the CN's and CT's
+		$('[data-cn]').show();
+		$('[data-ct]').show();
 					
 	},
 
@@ -676,26 +678,31 @@ viz = {
 	//  Change Record
 	//_________________//
 
-	loadCR: function(id) {
-		// Get the element
-		var $div = $('div[data-cr="'+id+'"]');
-		// Check if not loaded
-		if($div.attr('data-loaded') === 'false') {
+	loadCR: function(CR_id) {
+		var CR_data = viz.data.json.records[CR_id];
+		// Check if loaded
+		if(!CR_data.loaded) {
+			// Get the div
+			var $div = $('div[data-cr="'+CR_id+'"]');
 			// Fill the content
-			var data = viz.data.json.records[id];
-			viz.fillRecordDivision(id, data, $div.find('.CR-notices'));
-			// Set the loaded flag
-			$div.attr('data-loaded', 'true');
+			viz.fillRecordDivision(CR_id, CR_data, $div.find('.CR-notices'));
 		}
 	},
 
-	collapseCR: function(id) {
+	collapseCR: function(id, collapseChildren) {
+		collapseChildren = collapseChildren || false;
 		// Get the elements
 		var $div = $('div[data-cr="'+id+'"]');
 		var $childDiv = $div.find('.CR-notices');
 		// Collapse it
 		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
 		$div.removeClass('CR-expanded');
+		// Collapse the children
+		if(collapseChildren) {
+			for(var CN_id in viz.data.json.records[id].notices) {
+				viz.collapseCN(id, CN_id, true);
+			}
+		}
 	},
 
 	expandCR: function(id) {
@@ -717,7 +724,6 @@ viz = {
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'CR';
-		$div.attr('data-loaded', 'false');
 		$div.attr('data-cr', id);
 
 		// Load the template
@@ -751,42 +757,51 @@ viz = {
 	},
 
 	fillRecordDivision: function viz_fillRecordDivision(id, data, $childDiv) {
-		var notices = data.notices;
 		// Loop through every change notice
+		var notices = data.notices;
 		for(var CN_id in notices) {
 			$childDiv.append(viz.createNoticeDivision(id, CN_id, notices[CN_id]));
 		}
+		// Set the loaded flag
+		data.loaded = true;
 	},
 
 	//
 	//  Change Notice
 	//_________________//
 
-	loadCN: function(CR_id, id) {
-		// Get the element
-		var $div = $('div[data-cn="'+id+'"]');
-		// If not found, load the CR and try again
-		if($div.length === 0) {
+	loadCN: function(CR_id, CN_id) {
+		// Get the CR data
+		var CR_data = viz.data.json.records[CR_id];
+		// Load the CR
+		if(!CR_data.loaded) {
 			viz.loadCR(CR_id);
-			return viz.loadCN(CR_id, id);
 		}
-		// Check if not loaded
-		if($div.attr('data-loaded') === 'false') {
+		// Get the CN data
+		var CN_data = CR_data.notices[CN_id];
+		// Check if loaded
+		if(!CN_data.loaded) {
+			// Get the div
+			var $div = $('div[data-cn="'+CN_id+'"]');
 			// Fill the content
-			var data = viz.data.json.records[CR_id].notices[id];
-			viz.fillNoticeDivision(CR_id, id, data, $div.find('.CN-tasks'));
-			// Set the loaded flag
-			$div.attr('data-loaded', 'true');
+			viz.fillNoticeDivision(CR_id, CN_id, CN_data, $div.find('.CN-tasks'));
 		}
 	},
 
-	collapseCN: function(CR_id, id) {
+	collapseCN: function(CR_id, id, collapseChildren) {
+		collapseChildren = collapseChildren || false;
 		// Get the elements
 		var $div = $('div[data-cn="'+id+'"]');
 		var $childDiv = $div.find('.CN-tasks');
 		// Collapse it
 		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 		$div.removeClass('CN-expanded');
+		// Collapse the children
+		if(collapseChildren) {
+			for(var CT_id in viz.data.json.records[CR_id].notices[id].tasks) {
+				viz.collapseCT(CR_id, id, CT_id, true);
+			}
+		}
 	},
 
 	expandCN: function(CR_id, id) {
@@ -807,7 +822,6 @@ viz = {
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'CN';
-		$div.attr('data-loaded', 'false');
 		$div.attr('data-cn', id);
 
 		// Load the template
@@ -856,6 +870,8 @@ viz = {
 		for(var CT_id in tasks) {
 			$childDiv.append(viz.createTaskDivision(CR_id, id, CT_id, tasks[CT_id]));
 		}
+		// Set the loaded flag
+		data.loaded = true;
 	},
 
 	// Returns the column that a task goes under
@@ -922,21 +938,21 @@ viz = {
 	//  Change Task
 	//_______________//
 
-	loadCT: function(CR_id, CN_id, id) {
-		// Get the elements
-		var $div = $('div[data-ct="'+id+'"]');
-		// If not found, load the CN and try again
-		if(!$div.length) {
+	loadCT: function(CR_id, CN_id, CT_id) {
+		// Get the CN data
+		var CN_data = viz.data.json.records[CR_id].notices[CN_id];
+		// Load the CN
+		if(!CN_data.loaded) {
 			viz.loadCN(CR_id, CN_id);
-			return viz.loadCT(CR_id, CN_id, id);
 		}
-		// Check if not loaded
-		if($div.attr('data-loaded') === 'false') {
+		// Get the CT data
+		var CT_data = CN_data.tasks[CT_id];
+		// Check if loaded
+		if(!CT_data.loaded) {
+			// Get the div
+			var $div = $('div[data-ct="'+CT_id+'"]');
 			// Fill the content
-			var data = viz.data.json.records[CR_id].notices[CN_id].tasks[id];
-			viz.fillTaskDivision(id, data, data.tableRow, $div.find('.CT-block-container'));
-			// Set the loaded flag
-			$div.attr('data-loaded', 'true');
+			viz.fillTaskDivision(CT_id, CT_data, CT_data.tableRow, $div.find('.CT-block-container'));
 		}
 	},
 
@@ -973,7 +989,6 @@ viz = {
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'CT';
-		$div.attr('data-loaded', 'false');
 		$div.attr('data-ct', id);
 
 		// Load the template
@@ -1039,7 +1054,8 @@ viz = {
 			var blockDiv = viz.createBlockDivision(block_id, blocks[block_id]);
 			$blockContainer.append(blockDiv);
 		}
-
+		// Set the loaded flag
+		data.loaded = true;
 	},
 
 	createPartDivision: function viz_createPartDivision(id, data) {
