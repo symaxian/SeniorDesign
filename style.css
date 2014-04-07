@@ -161,7 +161,9 @@ body {
 
 .CT td {
 	width: 7.14285714286%;
+	/*
 	border-left: 1px solid white;
+	*/
 }
 
 .CT tr td:first-child {
@@ -209,14 +211,17 @@ body {
 /* Block */
 
 .block {
+	/*
 	background-color: #BBFFFF;
 	margin: 12px;
+	*/
 	font-family: sans-serif;
 	font-size: 10pt;
 }
 
 .block-header {
 	padding: 4px;
+	background-color: #BBFFFF;
 }
 
 .block-user, .block-task {

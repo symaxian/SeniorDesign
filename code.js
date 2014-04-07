@@ -1045,7 +1045,7 @@ viz = {
 				var partDiv = viz.createPartDivision(part_id, partData);
 				// var partDiv = viz.createPartDivision(part_id+'['+i+']', partData);
 				var colIndex = viz.getColumnIndex(partData.task);
-				$(tableRow.children[colIndex]).append(partDiv);
+				//$(tableRow.children[colIndex]).append(partDiv);
 			}
 		}
 		// Loop through the blocks
@@ -1053,6 +1053,7 @@ viz = {
 			blocks = data.blocks;
 		for(var block_id in blocks) {
 			var blockDiv = viz.createBlockDivision(block_id, blocks[block_id]);
+			
 			$blockContainer.append(blockDiv);
 		}
 		// Set the loaded flag
@@ -1140,6 +1141,10 @@ viz = {
 			task: id.split(':')[1]
 		};
 
+		//console.log(data);
+		var colIndex = viz.getColumnIndex(id.split(':')[1]);
+	
+
 		$div.loadTemplate('#block-template', templateData);
 
 
@@ -1174,7 +1179,7 @@ viz = {
 
 	createPartRow: function viz_createPartRow(id, data) {
 
-		var div = document.createElement('div'),
+		var div = document.createElement('tr'),
 			$div = $(div);
 
 		var templateData = data;

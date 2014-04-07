@@ -193,22 +193,48 @@
 
 	<!-- Block Template -->
 	<script type="text/html" id="block-template">
+		<table>
+			<tbody>
+				<tr id="partRow">
+					<td>
 		<div class="block-header">
 			<span class="block-user" data-content="user"></span>
 			<br>
 			<span class="block-task" data-content="task"></span>
 		</div>
-		<div class="block-content">
-		
-		</div>
+					</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
+		<table>
+			<tbody class="block-content"> 
+			<tr>
+				<th>Object Description</th>
+				<th>Status</th>
+			</tr>
+			</tbody>
+		</table>
 	</script>
 
 
 	<!-- Part Row Template -->
 	<script type="text/html" id="part-row-template">
-		<span data-content="status"></span>
-		<br>
-		<span data-content="objectDescription"></span>
+			<td data-content="objectDescription"></td>
+			
+			<td data-content="status"></td>
 	</script>
 
 
