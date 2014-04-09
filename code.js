@@ -1053,8 +1053,11 @@ viz = {
 			blocks = data.blocks;
 		for(var block_id in blocks) {
 			var blockDiv = viz.createBlockDivision(block_id, blocks[block_id]);
-			
+			//console.log(data);
+			colIndex = viz.getColumnIndex(block_id.split(':')[1]);
+			console.log(colIndex);
 			$blockContainer.append(blockDiv);
+			//$(tableRow.children[colIndex]).append(blockDiv);
 		}
 		// Set the loaded flag
 		data.loaded = true;
@@ -1130,20 +1133,19 @@ viz = {
 
 	},
 
-	createBlockDivision: function viz_createBlockDivision(id, data) {
+	createBlockDivision: function viz_createBlockDivision(id, data,blockDiv) {
 
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'block';
 
+		var pretask = id.split(':')[1];
 		var templateData = {
-			user: id.split(':')[0],
-			task: id.split(':')[1]
+			user: id.split(',')[0],
+			task: pretask.split('-')[0]
 		};
 
-		//console.log(data);
-		var colIndex = viz.getColumnIndex(id.split(':')[1]);
-	
+		
 
 		$div.loadTemplate('#block-template', templateData);
 
