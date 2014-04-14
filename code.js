@@ -1183,9 +1183,7 @@ viz = {
 		oldestPart=parseInt(oldestPart/(1000*3600*24));
 		console.log("oldest: "+ oldestPart);
 		//get current time
-		var seconds = new Date().getTime() ;
-		//subtract current time - oldest part time
-		oldestPart=seconds-oldestPart;
+		
 
 		var pretask = id.split(':')[1];
 		var templateData = {
