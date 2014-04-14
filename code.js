@@ -1141,42 +1141,36 @@ viz = {
 
 		var parts = data.parts;
 		var partsAmount=0;
-<<<<<<< HEAD
+
 		//console.log(data);
 		
 		var oldestPart =0;
-=======
+
 		console.log(data);
 		
 		var oldestPart;
->>>>>>> 5344fc7b945f59eb5e67cbc79893b0b4ef96ea40
-		
 				
 		for(var part_id in parts){
 			
 			var partPiece = parts[part_id];
 			
-<<<<<<< HEAD
 			if(oldestPart == 0)
 				oldestPart = partPiece[0].created;
 
-			console.log("created: "+ partPiece[0].created);
+			//console.log("created: "+ partPiece[0].created);
 			
 			day = partPiece[0].created;
-=======
 			if(part_id == 0)
 				oldestPart = partPiece[0].created;
 
 			console.log(partPiece[0].created);
 			
 			day = partPiece.created;
->>>>>>> 5344fc7b945f59eb5e67cbc79893b0b4ef96ea40
 			if (day < oldestPart)
 				oldestPart=day;
 			partsAmount++;
 		}
 
-<<<<<<< HEAD
 		
 			
 
@@ -1188,23 +1182,17 @@ viz = {
 		oldestPart=seconds-oldestPart;
 		oldestPart=parseInt(oldestPart/(1000*3600*24));
 		console.log("oldest: "+ oldestPart);
-=======
 		//get current time
 		var seconds = new Date().getTime() ;
 		//subtract current time - oldest part time
 		oldestPart=seconds-oldestPart;
->>>>>>> 5344fc7b945f59eb5e67cbc79893b0b4ef96ea40
 
 		var pretask = id.split(':')[1];
 		var templateData = {
 			user: id.split(',')[0],
 			task: pretask.split('-')[0],
 			parts: "Parts: " + partsAmount,
-<<<<<<< HEAD
 			days: "Days: " + oldestPart
-=======
-			days: "Days: " +oldestPart /(1000 * 60 * 60 *24)
->>>>>>> 5344fc7b945f59eb5e67cbc79893b0b4ef96ea40
 		};
 
 		
