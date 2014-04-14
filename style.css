@@ -224,7 +224,7 @@ body {
 	background-color: #BBFFFF;
 }
 
-.block-user, .block-task {
+.block-user, .block-task,.block-parts,.block-days {
 	font-weight: bold;
 }
 

@@ -1133,16 +1133,45 @@ viz = {
 
 	},
 
-	createBlockDivision: function viz_createBlockDivision(id, data,blockDiv) {
+	createBlockDivision: function viz_createBlockDivision(id, data) {
 
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'block';
 
+		var parts = data.parts;
+		var partsAmount=0;
+		console.log(data);
+		
+		var oldestPart;
+		
+				
+		for(var part_id in parts){
+			
+			var partPiece = parts[part_id];
+			
+			if(part_id == 0)
+				oldestPart = partPiece[0].created;
+
+			console.log(partPiece[0].created);
+			
+			day = partPiece.created;
+			if (day < oldestPart)
+				oldestPart=day;
+			partsAmount++;
+		}
+
+		//get current time
+		var seconds = new Date().getTime() ;
+		//subtract current time - oldest part time
+		oldestPart=seconds-oldestPart;
+
 		var pretask = id.split(':')[1];
 		var templateData = {
 			user: id.split(',')[0],
-			task: pretask.split('-')[0]
+			task: pretask.split('-')[0],
+			parts: "Parts: " + partsAmount,
+			days: "Days: " +oldestPart /(1000 * 60 * 60 *24)
 		};
 
 		
@@ -1167,7 +1196,7 @@ viz = {
 		});
 
 		// Fill the content div
-		var parts = data.parts;
+		//var parts = data.parts;
 		for(var part_id in parts) {
 			// JR: FIXME: The parts are an array, but it seems that 
 			var part = parts[part_id][0];
