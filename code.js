@@ -1056,6 +1056,7 @@ viz = {
 			//console.log(data);
 			colIndex = viz.getColumnIndex(block_id.split(':')[1]);
 			console.log(colIndex);
+			console.log($blockContainer);
 			$blockContainer.append(blockDiv);
 			//$(tableRow.children[colIndex]).append(blockDiv);
 		}
@@ -1153,7 +1154,6 @@ viz = {
 		for(var part_id in parts){
 			
 			var partPiece = parts[part_id];
-			
 			if(oldestPart == 0)
 				oldestPart = partPiece[0].created;
 
@@ -1163,7 +1163,7 @@ viz = {
 			if(part_id == 0)
 				oldestPart = partPiece[0].created;
 
-			//console.log(partPiece[0].created);
+			console.log(partPiece[0]);
 			
 			day = partPiece.created;
 			if (day < oldestPart)

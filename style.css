@@ -218,7 +218,9 @@ body {
 	font-family: sans-serif;
 	font-size: 10pt;
 }
-
+.block-content{
+	text-align: center;
+}
 .block-header {
 	padding: 4px;
 	background-color: #BBFFFF;
