@@ -1146,7 +1146,7 @@ viz = {
 		
 		var oldestPart =0;
 
-		console.log(data);
+		//console.log(data);
 		
 		var oldestPart;
 				
@@ -1163,7 +1163,7 @@ viz = {
 			if(part_id == 0)
 				oldestPart = partPiece[0].created;
 
-			console.log(partPiece[0].created);
+			//console.log(partPiece[0].created);
 			
 			day = partPiece.created;
 			if (day < oldestPart)
@@ -1176,12 +1176,12 @@ viz = {
 
 		//get current time
 		var seconds = new Date().getTime() ;
-		console.log("seconds: "+ seconds);
+		//console.log("seconds: "+ seconds);
 		
 		//subtract current time - oldest part time
 		oldestPart=seconds-oldestPart;
 		oldestPart=parseInt(oldestPart/(1000*3600*24));
-		console.log("oldest: "+ oldestPart);
+		//console.log("oldest: "+ oldestPart);
 		//get current time
 		
 
