@@ -1055,7 +1055,8 @@ viz = {
 			var blockDiv = viz.createBlockDivision(block_id, blocks[block_id]);
 			//console.log(data);
 			colIndex = viz.getColumnIndex(block_id.split(':')[1]);
-			console.log(colIndex);
+			if(viz.log) console.log(colIndex);
+			if(viz.log) console.log($blockContainer);
 			$blockContainer.append(blockDiv);
 			//$(tableRow.children[colIndex]).append(blockDiv);
 		}
@@ -1135,7 +1136,7 @@ viz = {
 
 	createBlockDivision: function viz_createBlockDivision(id, data) {
 
-		var div = document.createElement('div'),
+		var div = document.createElement('tr'),
 			$div = $(div);
 		div.className = 'block';
 
@@ -1153,7 +1154,6 @@ viz = {
 		for(var part_id in parts){
 			
 			var partPiece = parts[part_id];
-			
 			if(oldestPart == 0)
 				oldestPart = partPiece[0].created;
 
@@ -1163,7 +1163,7 @@ viz = {
 			if(part_id == 0)
 				oldestPart = partPiece[0].created;
 
-			//console.log(partPiece[0].created);
+			if(viz.log) console.log(partPiece[0]);
 			
 			day = partPiece.created;
 			if (day < oldestPart)
@@ -1233,6 +1233,7 @@ viz = {
 			$div = $(div);
 
 		var templateData = data;
+		
 
 		$div.loadTemplate('#part-row-template', templateData);
 
