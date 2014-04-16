@@ -30,6 +30,7 @@
 */
 
 viz = {
+	
 
 	DEBUG: true,
 		// Whether to log output or not
@@ -83,6 +84,15 @@ viz = {
 	],
 
 	init: function viz_init() {
+		//used for dealing with IE8, does not support indexOf
+		if (!Array.prototype.indexOf) {
+			Array.prototype.indexOf = function(obj, start) {
+     		for (var i = (start || 0), j = this.length; i < j; i++) {
+         		if (this[i] === obj) { return i; }
+    		 }
+     		return -1;
+			}
+		}
 		viz.log = viz.DEBUG && typeof console === 'object';
 		viz.loadData();
 	},
