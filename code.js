@@ -555,6 +555,7 @@ viz = {
 		// Show all the CN's and CT's
 		$('[data-cn]').show();
 		$('[data-ct]').show();
+		$('[data-block]').show();
 					
 	},
 
