@@ -16,17 +16,8 @@
 
 		Highlight headers in the correct column
 
-		Flexible data column handling!
-
 		Graceful error handling everywhere
 			File missing error handling
-
-		Status text
-			Awaiting data file
-			Parsing data
-			Filtering page
-			Generating page
-			...
 
 		Late part/CT/CN/CR coloring
 
@@ -36,38 +27,34 @@
 
 		Make it all faster for IE8
 
-		Manufacturing tasks have no data, so dont display the missing data on the page
-
 */
 
 viz = {
 	
-
-	DEBUG: true,
-		// Whether to log output or not
-
-	log: null,
-
-	dataFilepath: 'ecr_report.csv',
-		// The filepath for the CSV data
-
-	splitObjectDescription: true,
-		/*
-			Whether to split the ObjectDescription column into two properties, description and link
-				"http://plmuat2.ingerrand.com:8021/Windchill/servlet/TypeBasedIncludeServlet?oid=OR%3Awt.change2.WTChangeOrder2%3A17236793405&u8=1 ((M0114)SHIP WITH KITS. OBSOLETE TLSP. THE BALL VALVE X13680518010 IS BEING REPLACED. THE VENDOR IS DISCONTINUING CURRENT VALVE AND REPLACING WITH A NEW VALVE. VALVE IS DIRECT SHIPPED TO CUSTOMER., Engineering Change Notice - ECO-0039613)"
-					into
-				"http://plmuat2.ingerrand.com:8021/Windchill/servlet/TypeBasedIncludeServlet?oid=OR%3Awt.change2.WTChangeOrder2%3A17236793405&u8=1"
-					and
-				"((M0114)SHIP WITH KITS. OBSOLETE TLSP. THE BALL VALVE X13680518010 IS BEING REPLACED. THE VENDOR IS DISCONTINUING CURRENT VALVE AND REPLACING WITH A NEW VALVE. VALVE IS DIRECT SHIPPED TO CUSTOMER., Engineering Change Notice - ECO-0039613)"
-			JR: The new data should never have the ugly links in it, remove this later on
-		*/
-
 	data: {
 		raw: null,
 		array: null,
 		json: null
 	},
 		// Some storage for all the data, same data but different formats
+
+	//
+	//  Constants
+	//_____________//
+
+	DEBUG: true,
+		// Whether to log output or not
+
+	log: null,
+
+	DATA_FILEPATH: 'taskreport.csv',
+		// The filepath for the CSV data
+
+
+	NULL_CSV_STRING: ' ',
+		// When the CSV data we parse is outputted, some cells are meant to be empty
+		// If this string is in the cell that is how we know it is meant to be empty
+
 
 	CR_SLIDE_SPEED: 'medium',
 
@@ -77,24 +64,6 @@ viz = {
 
 	BLOCK_SLIDE_SPEED: 'slow',
 
-	columnNames: [
-		'ObjectTypeIndicator',
-		'Reassigned',
-		'PR',
-		'CR',
-		'CN',
-		'CT',
-		'Part',		// Renamed from 'Part/Doc/VS',
-		'Task',
-		'Actions',
-		'ObjectDescription',
-		'CurrentState',
-		'User',
-		'Role',
-		'Created',
-		'LastModified',
-		'Status'
-	],
 
 	//
 	//  Initialization
@@ -131,7 +100,7 @@ viz = {
 		if(viz.log) console.log('Loading data');
 
 		// Request the file
-		$.get(viz.dataFilepath, function(data) {
+		$.get(viz.DATA_FILEPATH, function(data) {
 			if(viz.log) console.log('Data loaded');
 
 			// JR: TODO: Error handling if the file was not found
@@ -236,16 +205,24 @@ viz = {
 	parseData: function viz_parseData(data) {
 
 		// Set the status
-		viz.setStatus('Forming hierarchical data structure')
+		viz.setStatus('Forming hierarchical data structure');
 
-		// JR: TODO: Create column indexes dynamically, depending on the columns present
+		// Get the first row
+		var row = data[0];
 
-		// Define indexes for the columns
-		// This just helps for readability
-		var index = {};
-		for(var colNameIndex=0; colNameIndex<viz.columnNames.length; colNameIndex++) {
-			index[viz.columnNames[colNameIndex]] = colNameIndex;
-		}
+		// Find the indexes of the columns we care about, using the column titles
+		var CR_index = row.indexOf('CR'),
+			CN_index = row.indexOf('CN'),
+			CT_index = row.indexOf('CT'),
+			part_index = row.indexOf('Part/Doc/VS'),
+			task_index = row.indexOf('Task'),
+			objectDescription_index = row.indexOf('Object Description'),
+			user_index = row.indexOf('User'),
+			// role_index = row.indexOf('Role'),
+			currentState_index = row.indexOf('Current State'),
+			// status_index = row.indexOf('Status'),
+			created_index = row.indexOf('Created'),
+			lastModified_index = row.indexOf('Last Modified');
 
 		var json = {
 			records: {},
@@ -256,17 +233,17 @@ viz = {
 		// Start at 1 to avoid the column names
 		for(var rowIndex = 1; rowIndex < data.length; rowIndex++ ) {
 
-			var row = data[rowIndex];
+			row = data[rowIndex];
 
 			// Break if it's an empty line(usually the last line in the file)
 			if(row.length === 1 && row[0] === '') {
 				continue;
 			}
 
-			var CR_id = row[index.CR],
-				CN_id = row[index.CN],
-				CT_id = row[index.CT],
-				part_id = row[index.Part];
+			var CR_id = row[CR_index],
+				CN_id = row[CN_index],
+				CT_id = row[CT_index],
+				part_id = row[part_index];
 
 			// Create new CR object if needed
 			if(typeof json.records[CR_id] !== 'object') {
@@ -291,17 +268,17 @@ viz = {
 			var CN = CR.notices[CN_id];
 
 			// Check if CT_id is null
-			if(CT_id === 'null') {
+			if(CT_id === viz.NULL_CSV_STRING) {
 
 				// CT is null, so this row defines the CN data
-				CN.task = row[index.Task];
-				CN.objectDescription = row[index.ObjectDescription];
-				CN.currentState = row[index.CurrentState];
-				CN.user = row[index.User];
-				CN.role = row[index.Role];
-				CN.created = new Date(row[index.Created]).valueOf();
-				CN.lastModified = new Date(row[index.LastModified]).valueOf();
-				CN.status = row[index.Status];
+				CN.task = row[task_index];
+				CN.objectDescription = row[objectDescription_index];
+				CN.currentState = row[currentState_index];
+				CN.user = row[user_index];
+				// CN.role = row[role_index];
+				CN.created = new Date(row[created_index]).valueOf();
+				CN.lastModified = new Date(row[lastModified_index]).valueOf();
+				// CN.status = row[status_index];
 
 			}
 			else {
@@ -320,17 +297,17 @@ viz = {
 				var CT = CN.tasks[CT_id];
 
 				// Check if part_id is null
-				if(part_id === 'null') {
+				if(part_id === viz.NULL_CSV_STRING) {
 
 					// Part is null, this row defines the CT data
-					CT.task = row[index.Task];
-					CT.objectDescription = row[index.ObjectDescription];
-					CT.currentState = row[index.CurrentState];
-					CT.user = row[index.User];
-					CT.role = row[index.Role];
-					CT.created = new Date(row[index.Created]).valueOf();
-					CT.lastModified = new Date(row[index.LastModified]).valueOf();
-					CT.status = row[index.Status];
+					CT.task = row[task_index];
+					CT.objectDescription = row[objectDescription_index];
+					CT.currentState = row[currentState_index];
+					CT.user = row[user_index];
+					// CT.role = row[role_index];
+					CT.created = new Date(row[created_index]).valueOf();
+					CT.lastModified = new Date(row[lastModified_index]).valueOf();
+					// CT.status = row[status_index];
 
 				}
 				else {
@@ -344,15 +321,14 @@ viz = {
 
 					// Add a new part piece object to the CT object
 					var partPiece = {
-						task: row[index.Task],
-						// actions: row[index.Actions],			JR: Ignored, always blank
-						objectDescription: row[index.ObjectDescription],
-						currentState: row[index.CurrentState],
-						user: row[index.User],
-						role: row[index.Role],
-						created: new Date(row[index.Created]).valueOf(),
-						lastModified: new Date(row[index.LastModified]).valueOf(),
-						status: row[index.Status]
+						task: row[task_index],
+						objectDescription: row[objectDescription_index],
+						currentState: row[currentState_index],
+						user: row[user_index],
+						// role: row[role_index],
+						created: new Date(row[created_index]).valueOf(),
+						lastModified: new Date(row[lastModified_index]).valueOf(),
+						// status: row[status_index]
 					};
 
 					// Also sort the part by "user-task" in the CT object
@@ -369,13 +345,6 @@ viz = {
 						userBlockData.parts[part_id] = [];
 					}
 					userBlockData.parts[part_id].push(partPiece);
-
-					// JR: TODO: Remove this once we know that the data will never have the ugly links in this columns
-					if(viz.splitObjectDescription) {
-						var string = partPiece.objectDescription;
-						partPiece.link = string.split(' ')[0];
-						partPiece.objectDescription = string.substr(string.indexOf(' '));
-					}
 
 					part.push(partPiece);
 
