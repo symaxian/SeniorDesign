@@ -1132,61 +1132,6 @@ viz = {
 		data.loaded = true;
 	},
 
-	createPartDivision: function viz_createPartDivision(id, data) {
-
-		var div = document.createElement('div'),
-			$div = $(div);
-		div.className = 'part';
-
-		var title = document.createElement('h4');
-		$(title).text(id);
-		$div.append(title);
-
-		// JR: This is just temporary, just to show all the part data
-
-		// Add the data
-		var dl = document.createElement('dl');
-
-		// JR: objectDescription is ignored for now, too much text
-
-		var propertyNames = [
-			'task',
-			// 'objectDescription',
-			'currentState',
-			'user',
-			'role',
-			'created',
-			'lastModified',
-			'status'
-		];
-
-		var templateData = {};
-		for(var i=0;i<propertyNames.length;i++) {
-			templateData[propertyNames[i]] = data[propertyNames[i]];
-		}
-		templateData.id = id;
-
-		$div.loadTemplate('#part-template', templateData);
-
-		var $header = $div.find('.part-header');
-		var $contentDiv = $div.find('.part-content');
-
-		$contentDiv.hide();
-
-		// Create the collapse/expand children button
-		$header.click(function() {
-			if($contentDiv.is(':visible')) {
-				$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-			}
-			else {
-				$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-			}
-		});
-
-		return div;
-
-	},
-
 	createBlockDivision: function viz_createBlockDivision(CR_id, CN_id, CT_id, id, data) {
 
 		var div = document.createElement('div'),
