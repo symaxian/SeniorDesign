@@ -1301,8 +1301,6 @@ viz = {
 
 	expandBlock: function viz_expandBlock(CR_id, CN_id, CT_id, block_id){
 		
-		//make sure its loaded
-		viz.loadBlock(CR_id, CN_id, CT_id, block_id);
 		//get the elements
 		var $div = $('div[data-block="'+block_id+'"]');
 		//console.log($div);
@@ -1322,10 +1320,7 @@ viz = {
 		$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 		
 	},
-	loadBlock: function viz_loadBlock(CR_id,CN_id,CT_id,block_id){
-		console.log("block loaded");
-		
-	},
+
 
 	createPartRow: function viz_createPartRow(id, data) {
 
