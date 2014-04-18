@@ -727,6 +727,8 @@ viz = {
 		$div.addClass('CR-expanded');
 	},
 
+
+	
 	// This method creates and returns a record division
 	createRecordDivision: function viz_createRecordDivision(CR_id, data) {
 		if(viz.log) console.groupCollapsed('Created DIV for record: '+CR_id);
@@ -1217,10 +1219,14 @@ viz = {
 		// Create the collapse/expand children button
 		$header.click(function() {
 			if($contentDiv.is(':visible')) {
-				$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				//$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				viz.collapseBlock($div);
+				console.log("collapse");
 			}
 			else {
-				$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				//$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+				viz.expandBlock($div);
+				console.log("expand");
 			}
 		});
 
@@ -1235,6 +1241,18 @@ viz = {
 
 		return $div;
 
+	},
+	
+	expandBlock: function viz_expandBlock(div){
+		console.log("expanding");
+		var $contentDiv = div.find('.block-content');
+		$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+	},
+	collapseBlock: function viz_collapseBlock(div){
+		console.log("collapsing");
+		var $contentDiv = div.find('.block-content');
+		$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		
 	},
 
 	createPartRow: function viz_createPartRow(id, data) {
