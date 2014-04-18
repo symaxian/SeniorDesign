@@ -455,8 +455,8 @@ viz = {
 		// Set the status
 		viz.setStatus('Generating the page');
 
-		if(viz.log) console.group('Generating page');
-		if(viz.log) console.time('Generate Page');
+		// if(viz.log) console.group('Generating page');
+		// if(viz.log) console.time('Generate Page');
 		$('#header-loading').show();
 
 		//add filter button functionality
@@ -526,8 +526,8 @@ viz = {
 		// Call the headerUpdated method to fix the content margin
 		viz.headerUpdated();
 
-		if(viz.log) console.groupEnd();
-		if(viz.log) console.timeEnd('Generate Page');
+		// if(viz.log) console.groupEnd();
+		// if(viz.log) console.timeEnd('Generate Page');
 
 		// Hide the status text
 		viz.hideStatus();
@@ -632,10 +632,10 @@ viz = {
 		}
 
 		// Filter through properties of the change notice for the filterWord
-		if(data.role)				visible = visible || viz.filterRegex.test(data.role);
+		// if(data.role)				visible = visible || viz.filterRegex.test(data.role);
 		if(data.currentState)		visible = visible || viz.filterRegex.test(data.currentState);
 		if(data.task)				visible = visible || viz.filterRegex.test(data.task);
-		if(data.status)				visible = visible || viz.filterRegex.test(data.status);
+		// if(data.status)				visible = visible || viz.filterRegex.test(data.status);
 		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
 		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
 
@@ -677,10 +677,10 @@ viz = {
 		}
 
 		//filter through properties of the change task for the filterWord
-		if(data.role)				visible = visible || viz.filterRegex.test(data.role);
+		// if(data.role)				visible = visible || viz.filterRegex.test(data.role);
 		if(data.currentState)		visible = visible || viz.filterRegex.test(data.currentState);
 		if(data.task)				visible = visible || viz.filterRegex.test(data.task);
-		if(data.status)				visible = visible || viz.filterRegex.test(data.status);
+		// if(data.status)				visible = visible || viz.filterRegex.test(data.status);
 		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
 		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
 
@@ -716,10 +716,10 @@ viz = {
 		}
 
 		//filter through properties of the change task for the filterWord
-		if(data.role)				visible = visible || viz.filterRegex.test(data.role);
+		// if(data.role)				visible = visible || viz.filterRegex.test(data.role);
 		if(data.currentState)		visible = visible || viz.filterRegex.test(data.currentState);
 		if(data.task)				visible = visible || viz.filterRegex.test(data.task);
-		if(data.status)				visible = visible || viz.filterRegex.test(data.status);
+		// if(data.status)				visible = visible || viz.filterRegex.test(data.status);
 		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
 		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
 
@@ -792,7 +792,7 @@ viz = {
 	
 	// This method creates and returns a record division
 	createRecordDivision: function viz_createRecordDivision(CR_id, data) {
-		if(viz.log) console.groupCollapsed('Created DIV for record: '+CR_id);
+		// if(viz.log) console.groupCollapsed('Created DIV for record: '+CR_id);
 
 		// Create the division
 		var div = document.createElement('div'),
@@ -824,7 +824,7 @@ viz = {
 		// Hide the content
 		$childDiv.hide();
 
-		if(viz.log) console.groupEnd();
+		// if(viz.log) console.groupEnd();
 
 		return div;
 
@@ -890,7 +890,7 @@ viz = {
 	},
 
 	createNoticeDivision: function viz_createNoticeDivision(CR_id, CN_id, data) {
-		if(viz.log) console.groupCollapsed('Created DIV for notice: '+CN_id);
+		// if(viz.log) console.groupCollapsed('Created DIV for notice: '+CN_id);
 
 		// Create the division
 		var div = document.createElement('div'),
@@ -935,7 +935,7 @@ viz = {
 		// Hide the content
 		$childDiv.hide();
 
-		if(viz.log) console.groupEnd();
+		// if(viz.log) console.groupEnd();
 
 		return div;
 
@@ -1057,7 +1057,7 @@ viz = {
 
 	// This method creates and returns a task division
 	createTaskDivision: function viz_createTaskDivision(CR_id, CN_id, id, data) {
-		if(viz.log) console.groupCollapsed('Created DIV for task: '+id);
+		// if(viz.log) console.groupCollapsed('Created DIV for task: '+id);
 
 		// Create the division
 		var div = document.createElement('div'),
@@ -1097,7 +1097,7 @@ viz = {
 		// Hide the content
 		$childDiv.hide();
 
-		if(viz.log) console.groupEnd();
+		// if(viz.log) console.groupEnd();
 
 		return div;
 
