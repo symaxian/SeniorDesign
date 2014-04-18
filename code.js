@@ -243,12 +243,24 @@ viz = {
 				continue;
 			}
 
+			var createdDateStr=row[created_index]; //returned from mysql timestamp/datetime field
+			var a=createdDateStr.split(" ");
+			var d=a[0].split("-");
+			var t=a[1].split(":");
+			var createdDate = new Date(d[0],(d[1]-1),d[2],t[0],t[1], 0);//assumes all timezones are the same
+			
+			var modifiedDateStr=row[lastModified_index]; //returned from mysql timestamp/datetime field
+			a=modifiedDateStr.split(" ");
+			d=a[0].split("-");
+			t=a[1].split(":");
+			var modifiedDate = new Date(d[0],(d[1]-1),d[2],t[0],t[1], 0);//assumes all timezones are the same
+
 			var CR_id = row[CR_index],
 				CN_id = row[CN_index],
 				CT_id = row[CT_index],
 				part_id = row[part_index],
-				createdValue = new Date(row[created_index]).valueOf(),
-				modifiedValue = new Date(row[lastModified_index]).valueOf();
+				createdValue = createdDate.valueOf(),
+				modifiedValue = modifiedDate.valueOf();
 
 			// Create new CR object if needed
 			if(typeof json.records[CR_id] !== 'object') {
