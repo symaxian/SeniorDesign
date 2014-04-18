@@ -1088,7 +1088,7 @@ viz = {
 
 		// JR: TODO: Since we're moving to the block view rather than parts, remove this part div eventually
 		var $childDiv = $div.find('.CT-parts');
-		var tableRow = $div.find('#partRow')[0];
+		var tableRow = $div.find('.partRow')[0];
 		data.tableRow = tableRow;
 
 		// Create the collapse/expand children button
@@ -1169,21 +1169,6 @@ viz = {
 		}
 		templateData.id = id;
 
-		// $.addTemplateFormatter({
-		// 	upperCaseFormatter : function(value, template) {
-		// 			return value.toUpperCase();
-		// 		},
-		// 	lowerCaseFormatter : function(value, template) {
-		// 			return value.toLowerCase();
-		// 		},
-		// 	sameCaseFormatter : function(value, template) {
-		// 			if(template == 'upper') {
-		// 				return value.toUpperCase();
-		// 			}
-		// 			return value.toLowerCase();
-		// 		}
-		// });
-
 		$div.loadTemplate('#part-template', templateData);
 
 		var $header = $div.find('.part-header');
@@ -1213,33 +1198,28 @@ viz = {
 		$div.attr('data-block',id);
 
 		var parts = data.parts;
-		var partsAmount=0;
+		var partsAmount = 0;
+		var oldestPart = 0;
 
-		
-		var oldestPart =0;
-
-		
 		for(var part_id in parts){
-			
-			var partPiece = parts[part_id];
-			if(oldestPart == 0)
-				oldestPart = partPiece[0].created;
 
+			var partPiece = parts[part_id];
+			if(oldestPart === 0) {
+				oldestPart = partPiece[0].created;
+			}
 			
 			day = partPiece[0].created;
-			if(part_id == 0)
+			if(part_id === 0) {
 				oldestPart = partPiece[0].created;
+			}
 
 			//if(viz.log) console.log(partPiece[0]);
-			
+
 			day = partPiece.created;
 			if (day < oldestPart)
-				oldestPart=day;
+				oldestPart = day;
 			partsAmount++;
 		}
-
-		
-			
 
 		//get current time
 		var seconds = new Date().getTime();
@@ -1247,11 +1227,11 @@ viz = {
 		//console.log("seconds: "+ seconds);
 		
 		//subtract current time - oldest part time
-		oldestPart=seconds-oldestPart;
-		oldestPart=parseInt(oldestPart/(1000*3600*24));
+		oldestPart = seconds-oldestPart;
+		oldestPart = Math.floor(oldestPart/(1000*3600*24));
 		//console.log("oldest: "+ oldestPart);
 		//get current time
-		
+
 
 		var pretask = id.split(':')[1];
 		var templateData = {
@@ -1261,27 +1241,26 @@ viz = {
 			days: "Days: " + oldestPart
 		};
 
-		
+
+		// Create and insert the header
 
 		$div.loadTemplate('#block-template', templateData);
-
-
-		var $header = $div.find('.block-header');
-		var $contentDiv = $div.find('.block-content');
+		var $header = viz.createBlockHeaderDivision(templateData);
+		var colIndex = viz.getColumnIndex(templateData.task);
+		$($div.find('.partRow')[0].children[colIndex]).append($header);
 
 		// Hide the content
+
+		var $contentDiv = $div.find('.block-content');
 		$contentDiv.hide();
 
 		// Create the collapse/expand children button
 		$header.click(function() {
 			if($contentDiv.is(':visible')) {
-				//$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				viz.collapseBlock(CR_id,CN_id,CT_id,id);
+				viz.collapseBlock(CR_id, CN_id, CT_id, id);
 			}
 			else {
-				//$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				viz.expandBlock(CR_id,CN_id,CT_id,id);
-
+				viz.expandBlock(CR_id, CN_id, CT_id, id);
 			}
 		});
 
@@ -1293,6 +1272,17 @@ viz = {
 			$contentDiv.append(viz.createPartRow(part_id, part));
 		}
 
+
+		return $div;
+
+	},
+
+	createBlockHeaderDivision: function(data) {
+		var div = document.createElement('div'),
+			$div = $(div);
+		div.className = 'block-header';
+
+		$div.loadTemplate('#block-header-template', data);
 
 		return $div;
 
