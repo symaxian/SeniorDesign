@@ -692,8 +692,38 @@ viz = {
 		
 		var $div = $('div[data-block="'+block_id+'"]');
 		var visible = false;
+		
+		console.log(data);
+		if(viz.filterRegex.test(block_id)) {
+			visible = true;
+		}
 
-		// JR: TODO: Block filtering
+		//filter through properties of the change task for the filterWord
+		if(data.role)				visible = visible || viz.filterRegex.test(data.role);
+		if(data.currentState)		visible = visible || viz.filterRegex.test(data.currentState);
+		if(data.task)				visible = visible || viz.filterRegex.test(data.task);
+		if(data.status)				visible = visible || viz.filterRegex.test(data.status);
+		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
+		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
+
+		// Filter each block
+		for(var part_id in data.parts){
+			//if(viz.filterParts(CR_id, CN_id, CT_id, block_id, data.blocks[block_id])) {
+			//	visible = true;
+			//}
+		}
+
+
+
+		//show/hide
+		if(visible) {
+			viz.expandBlock(block_id);
+			$div.show();
+		}
+		else {
+			$div.hide();
+			viz.collapseBlock();
+		}
 
 		return visible;
 
@@ -979,7 +1009,7 @@ viz = {
 			// Get the div
 			var $div = $('div[data-ct="'+CT_id+'"]');
 			// Fill the content
-			viz.fillTaskDivision(CT_id, CT_data, CT_data.tableRow, $div.find('.CT-block-container'));
+			viz.fillTaskDivision(CR_id, CN_id, CT_id, CT_data, CT_data.tableRow, $div.find('.CT-block-container'));
 		}
 	},
 
@@ -1061,7 +1091,7 @@ viz = {
 	},
 
 	// This method fills a task division content div with its content
-	fillTaskDivision: function viz_fillTaskDivision(id, data, tableRow, blockContainer) {
+	fillTaskDivision: function viz_fillTaskDivision(CR_id, CN_id, id, data, tableRow, blockContainer) {
 		// Loop through every part
 		var parts = data.parts;
 		for(var part_id in parts) {
@@ -1078,7 +1108,7 @@ viz = {
 		var $blockContainer = $(blockContainer),
 			blocks = data.blocks;
 		for(var block_id in blocks) {
-			var blockDiv = viz.createBlockDivision(block_id, blocks[block_id]);
+			var blockDiv = viz.createBlockDivision(CR_id, CN_id, id,block_id, blocks[block_id]);
 			//console.log(data);
 			colIndex = viz.getColumnIndex(block_id.split(':')[1]);
 			if(viz.log) console.log(colIndex);
@@ -1160,11 +1190,12 @@ viz = {
 
 	},
 
-	createBlockDivision: function viz_createBlockDivision(id, data) {
+	createBlockDivision: function viz_createBlockDivision(CR_id, CN_id, CT_id, id, data) {
 
-		var div = document.createElement('tr'),
+		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'block';
+		$div.attr('data-block',id);
 
 		var parts = data.parts;
 		var partsAmount=0;
@@ -1234,13 +1265,11 @@ viz = {
 		$header.click(function() {
 			if($contentDiv.is(':visible')) {
 				//$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				viz.collapseBlock($div);
-				console.log("collapse");
+				viz.collapseBlock(CR_id,CN_id,CT_id,id);
 			}
 			else {
 				//$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				viz.expandBlock($div);
-				console.log("expand");
+				viz.expandBlock(CR_id,CN_id,CT_id,id);
 			}
 		});
 
@@ -1257,15 +1286,31 @@ viz = {
 
 	},
 	
-	expandBlock: function viz_expandBlock(div){
-		console.log("expanding");
-		var $contentDiv = div.find('.block-content');
+	expandBlock: function viz_expandBlock(CR_id, CN_id, CT_id, block_id){
+		
+		//make sure its loaded
+		viz.loadBlock(CR_id, CN_id, CT_id, block_id);
+		//get the elements
+		var $div = $('div[data-block="'+block_id+'"]');
+		//console.log($div);
+		//expand it
+		var $contentDiv = $div.find('.block-content');
 		$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+
 	},
-	collapseBlock: function viz_collapseBlock(div){
-		console.log("collapsing");
-		var $contentDiv = div.find('.block-content');
+	
+	collapseBlock: function viz_collapseBlock(CR_id, CN_id, CT_id, block_id){
+		//make sure its loaded
+		viz.loadBlock(CR_id, CN_id, CT_id, block_id);
+		//get the elements
+		var $div = $('div[data-block="'+block_id+'"]');
+		//collapse
+		var $contentDiv = $div.find('.block-content');
 		$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		
+	},
+	loadBlock: function viz_loadBlock(CR_id,CN_id,CT_id,block_id){
+		console.log("block loaded");
 		
 	},
 
