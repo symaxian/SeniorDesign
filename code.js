@@ -709,40 +709,48 @@ viz = {
 		var $div = $('div[data-block="'+block_id+'"]');
 		var visible = false;
 		
-		console.log(data);
+		console.log("BLOCK DATA",data);
 		if(viz.filterRegex.test(block_id)) {
 			visible = true;
 		}
 
-		//filter through properties of the change task for the filterWord
-		// if(data.role)				visible = visible || viz.filterRegex.test(data.role);
-		if(data.currentState)		visible = visible || viz.filterRegex.test(data.currentState);
-		if(data.task)				visible = visible || viz.filterRegex.test(data.task);
-		// if(data.status)				visible = visible || viz.filterRegex.test(data.status);
-		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
-		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
-
-		// Filter each block
+		// Filter each blocks parts
 		for(var part_id in data.parts){
-			//if(viz.filterParts(CR_id, CN_id, CT_id, block_id, data.blocks[block_id])) {
-			//	visible = true;
-			//}
+			if(viz.filterPart(part_id, data.parts[part_id])) {
+				visible = true;
+			}
 		}
 
 
 
 		//show/hide
 		if(visible) {
-			viz.expandBlock(block_id);
+			viz.expandBlock(CR_id, CN_id, CT_id, block_id);
 			$div.show();
 		}
 		else {
 			$div.hide();
-			viz.collapseBlock();
+			viz.collapseBlock(CR_id, CN_id, CT_id, block_id);
 		}
 
 		return visible;
 
+	},
+
+	filterPart: function viz_filterPart(part_id,data){
+		var visible = false;
+		console.log("part data: ",data[0]);
+		data=data[0];
+		//filter through properties of the parts for the filterWord
+		if(data.role)				visible = visible || viz.filterRegex.test(data.role);
+		if(data.currentState)		visible = visible || viz.filterRegex.test(data.currentState);
+		if(data.task)				visible = visible || viz.filterRegex.test(data.task);
+		if(data.status)				visible = visible || viz.filterRegex.test(data.status);
+		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
+		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
+
+
+		return visible;
 	},
 
 	//
@@ -1118,10 +1126,8 @@ viz = {
 			blocks = data.blocks;
 		for(var block_id in blocks) {
 			var blockDiv = viz.createBlockDivision(CR_id, CN_id, id,block_id, blocks[block_id]);
-			//console.log(data);
 			colIndex = viz.getColumnIndex(block_id.split(':')[1]);
-			if(viz.log) console.log(colIndex);
-			if(viz.log) console.log($blockContainer);
+			if(viz.log) console.log("column index",colIndex);
 			$blockContainer.append(blockDiv);
 			//$(tableRow.children[colIndex]).append(blockDiv);
 		}
@@ -1209,27 +1215,22 @@ viz = {
 		var parts = data.parts;
 		var partsAmount=0;
 
-		//console.log(data);
 		
 		var oldestPart =0;
 
-		//console.log(data);
 		
-		var oldestPart;
-				
 		for(var part_id in parts){
 			
 			var partPiece = parts[part_id];
 			if(oldestPart == 0)
 				oldestPart = partPiece[0].created;
 
-			//console.log("created: "+ partPiece[0].created);
 			
 			day = partPiece[0].created;
 			if(part_id == 0)
 				oldestPart = partPiece[0].created;
 
-			if(viz.log) console.log(partPiece[0]);
+			//if(viz.log) console.log(partPiece[0]);
 			
 			day = partPiece.created;
 			if (day < oldestPart)
@@ -1241,7 +1242,8 @@ viz = {
 			
 
 		//get current time
-		var seconds = new Date().getTime() ;
+		var seconds = new Date().getTime();
+
 		//console.log("seconds: "+ seconds);
 		
 		//subtract current time - oldest part time
