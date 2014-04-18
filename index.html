@@ -15,45 +15,51 @@
 			<div id="header-loading" class="hidden">
 				<h3>Loading...</h3>
 			</div>
-			
-
-			
-			
 			<table>
-			<!--
-			<th>Filter by Users</th>
-			<th><form action=""><select name="dropUser" >
-			<option value=""></option>
-			</select>
-			</form>
-			</th>
-			
-			<th>Filter by Status</th>
-			<th><form action=""><select name="dropStatus">
-			<option value=""></option>
-			</select>
-			</form>
-			</th>
-			
-			<th>Filter by Task</th>
-			<th><form action=""><select name="dropTask">
-			<option value=""></option>
-			</select>
-			</form>
-			</th>
-			
-			<th>Filter by Current State</th>
-			<th><form action=""><select name="dropCurrentState">
-			<option value=""></option>
-			</select>
-			</form>
-			</th>-->
-			
-			<th><input type="text" id="filterBox"></th>
-			
-			<th><button id="filterButton">Filter</button></th>
-			<th><button id="resetButton">Reset</button></th>
-
+				<tbody>
+					<tr>
+						<!--
+						<th>Filter by Users</th>
+						<th><form action=""><select name="dropUser" >
+						<option value=""></option>
+						</select>
+						</form>
+						</th>
+						
+						<th>Filter by Status</th>
+						<th><form action=""><select name="dropStatus">
+						<option value=""></option>
+						</select>
+						</form>
+						</th>
+						
+						<th>Filter by Task</th>
+						<th><form action=""><select name="dropTask">
+						<option value=""></option>
+						</select>
+						</form>
+						</th>
+						
+						<th>Filter by Current State</th>
+						<th><form action=""><select name="dropCurrentState">
+						<option value=""></option>
+						</select>
+						</form>
+						</th>-->
+						<td>
+							<input type="text" id="filterBox">
+						</td>
+						<td>
+							<button id="filterButton">Filter</button>
+						</td>
+						<td>
+							<button id="resetButton">Reset</button>
+						</td>
+						<td id="status_text_cell">
+							Status: <span id="status_text"></span>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 			<table id="header-table" class="hidden">
 				<tbody>
