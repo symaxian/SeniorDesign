@@ -1242,8 +1242,6 @@ viz = {
 	},
 	
 	collapseBlock: function viz_collapseBlock(CR_id, CN_id, CT_id, block_id){
-		//make sure its loaded
-		viz.loadBlock(CR_id, CN_id, CT_id, block_id);
 		//get the elements
 		var $div = $('div[data-block="'+block_id+'"]');
 		//collapse
