@@ -41,6 +41,11 @@ body {
 	border: none;
 }
 
+#status_text_cell {
+	width: 100%;
+	text-align: right;
+}
+
 /* Change Record */
 
 .CR {
@@ -224,7 +229,7 @@ body {
 	padding: 0;
 	table-layout: fixed;
 	width: 100%;
-	
+
 }
 
 .block-content {

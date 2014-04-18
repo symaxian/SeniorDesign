@@ -96,7 +96,12 @@ viz = {
 		'Status'
 	],
 
+	//
+	//  Initialization
+	//__________________//
+
 	init: function viz_init() {
+		viz.setStatus('Initializating');
 		// Used for dealing with IE8, which does not support indexOf
 		if (!Array.prototype.indexOf) {
 			Array.prototype.indexOf = function(obj, start) {
@@ -121,7 +126,11 @@ viz = {
 	},
 
 	loadData: function viz_loadData() {
+		// Set the status text
+		viz.setStatus('Waiting for data file');
 		if(viz.log) console.log('Loading data');
+
+		// Request the file
 		$.get(viz.dataFilepath, function(data) {
 			if(viz.log) console.log('Data loaded');
 
@@ -139,6 +148,15 @@ viz = {
 		});
 	},
 
+	hideStatus: function viz_hideStatus() {
+		$('#status_text_cell').hide();
+	},
+
+	setStatus: function viz_setStatus(msg) {
+		$('#status_text_cell').show();
+		$('#status_text').text(msg);
+	},
+
 	//
 	//  Data Parsing
 	//________________//
@@ -146,6 +164,9 @@ viz = {
 	// This will parse the raw csv data into a 2d array
 	// The default delimiter is a comma
 	parseRawData: function viz_parseRawData(data, delimiter) {
+
+		// Set the status
+		viz.setStatus('Parsing raw data');
 
 		delimiter = delimiter || ',';
 
@@ -213,6 +234,9 @@ viz = {
 
 	// This will parse the 2d array of data into a hierarchical JSON object
 	parseData: function viz_parseData(data) {
+
+		// Set the status
+		viz.setStatus('Forming hierarchical data structure')
 
 		// JR: TODO: Create column indexes dynamically, depending on the columns present
 
@@ -459,6 +483,9 @@ viz = {
 
 	generatePage: function viz_generatePage(json) {
 		
+		// Set the status
+		viz.setStatus('Generating the page');
+
 		if(viz.log) console.group('Generating page');
 		if(viz.log) console.time('Generate Page');
 		$('#header-loading').show();
@@ -533,6 +560,9 @@ viz = {
 		if(viz.log) console.groupEnd();
 		if(viz.log) console.timeEnd('Generate Page');
 
+		// Hide the status text
+		viz.hideStatus();
+
 	},
 
 	//
@@ -540,6 +570,9 @@ viz = {
 	//_________//
 
 	resetPage: function viz_resetPage() {
+
+		// Set the status text
+		viz.setStatus('Resetting page');
 
 		$('#filterBox').val('');
 
@@ -556,6 +589,9 @@ viz = {
 		$('[data-cn]').show();
 		$('[data-ct]').show();
 		$('[data-block]').show();
+
+		// Hide the status text
+		viz.hideStatus();
 					
 	},
 
@@ -565,6 +601,8 @@ viz = {
 	//_____________//
 
 	filterPage: function viz_filterPage() {
+		// Set the status text
+		viz.setStatus('Filtering page');
 		// Create and save the filter regular expression
 		var filterText = $('#filterBox').val();
 		viz.filterRegex = new RegExp(filterText, 'i');
@@ -573,6 +611,8 @@ viz = {
 		for(var CR_id in records) {
 			viz.filterCR(CR_id, records[CR_id]);
 		}
+		// Hide the status text
+		viz.hideStatus();
 	},
 
 	filterCR: function viz_filterCR(CR_id, data){
@@ -913,6 +953,10 @@ viz = {
 		}
 
 		$div.loadTemplate('#CN-template', templateData);
+
+		if(typeof data.task === 'undefined') {
+			$div.find('.CN-data').hide();
+		}
 
 		// Get the title and notices div
 		var $title = $div.find('.CN-title');
