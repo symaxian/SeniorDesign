@@ -14,18 +14,29 @@
 
 	TODO:
 
-		How do we merge multiple part entries?
-			JR: They seem to reflect a part being in multiple stages with different users
-				Perhaps just keep them as separate part blocks but maybe have each block acknowledge the other ones
+		Highlight headers in the correct column
+
+		Flexible data column handling!
 
 		Graceful error handling everywhere
+			File missing error handling
 
-		UI:
-			- Fix collapsing/expanding animation
-			- Position expand button better
-			- Everything for the parts
-			- Option to load pieces over time?
-				Maybe hide by default and lazily load task or part divs
+		Status text
+			Awaiting data file
+			Parsing data
+			Filtering page
+			Generating page
+			...
+
+		Late part/CT/CN/CR coloring
+
+		On hover info text
+
+		Remove log statements
+
+		Make it all faster for IE8
+
+		Manufacturing tasks have no data, so dont display the missing data on the page
 
 */
 
@@ -610,7 +621,10 @@ viz = {
 		if(data.status)				visible = visible || viz.filterRegex.test(data.status);
 		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
 		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
-		
+
+		// Load the CN, for some reason it will not filter correctly if not loaded
+		viz.loadCN(CR_id, CN_id);
+
 		var tasks = data.tasks;
 		for(var CT_id in tasks) {
 			if(viz.filterCT(CR_id, CN_id, CT_id, tasks[CT_id])) {
