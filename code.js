@@ -69,11 +69,13 @@ viz = {
 	},
 		// Some storage for all the data, same data but different formats
 
-	users: [],
-	partStatus: [],
-	currentStates: [],
-	tasks: [],
-	
+	CR_SLIDE_SPEED: 'medium',
+
+	CT_SLIDE_SPEED: 'slow',
+
+	CN_SLIDE_SPEED: 'slow',
+
+	BLOCK_SLIDE_SPEED: 'slow',
 
 	columnNames: [
 		'ObjectTypeIndicator',
@@ -95,14 +97,16 @@ viz = {
 	],
 
 	init: function viz_init() {
-		//used for dealing with IE8, does not support indexOf
+		// Used for dealing with IE8, which does not support indexOf
 		if (!Array.prototype.indexOf) {
 			Array.prototype.indexOf = function(obj, start) {
-     		for (var i = (start || 0), j = this.length; i < j; i++) {
-         		if (this[i] === obj) { return i; }
-    		 }
-     		return -1;
-			}
+				for (var i = (start || 0), j = this.length; i < j; i++) {
+					if (this[i] === obj) {
+						return i;
+					}
+				}
+				return -1;
+			};
 		}
 		viz.log = viz.DEBUG && typeof console === 'object';
 		viz.loadData();
@@ -412,29 +416,32 @@ viz = {
 					maxModified = modified;
 				}
 
+				// The four blocks of commented code below were used to collect the possible property values
+				// This was done to then create dropdowns to filter from these values
+
 				// Grab the part user
-				var user = partPiece.user;
-				if(viz.users.indexOf(user) === -1) {
-					viz.users.push(user);
-				}
+				// var user = partPiece.user;
+				// if(viz.users.indexOf(user) === -1) {
+				// 	viz.users.push(user);
+				// }
 
 				//Grab the part status
-				var status = partPiece.status;
-				if(viz.partStatus.indexOf(status) === -1) {
-					viz.partStatus.push(status);
-				}
+				// var status = partPiece.status;
+				// if(viz.partStatus.indexOf(status) === -1) {
+				// 	viz.partStatus.push(status);
+				// }
 
 				//Grab the tasks
-				var task = partPiece.task;
-				if(viz.tasks.indexOf(task) === -1) {
-					viz.tasks.push(task);
-				}
+				// var task = partPiece.task;
+				// if(viz.tasks.indexOf(task) === -1) {
+				// 	viz.tasks.push(task);
+				// }
 
 				//Grab the current states
-				var currentState = partPiece.currentState;
-				if(viz.currentStates.indexOf(currentState) === -1) {
-					viz.currentStates.push(currentState);
-				}
+				// var currentState = partPiece.currentState;
+				// if(viz.currentStates.indexOf(currentState) === -1) {
+				// 	viz.currentStates.push(currentState);
+				// }
 
 			}
 		}
@@ -720,7 +727,7 @@ viz = {
 		var $div = $('div[data-cr="'+CR_id+'"]');
 		var $childDiv = $div.find('.CR-notices');
 		// Collapse it
-		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
+		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'left'] }, viz.CR_SLIDE_SPEED);
 		$div.removeClass('CR-expanded');
 		// Collapse the children
 		if(collapseChildren) {
@@ -737,7 +744,7 @@ viz = {
 		var $div = $('div[data-cr="'+CR_id+'"]');
 		var $childDiv = $div.find('.CR-notices');
 		// Expand it
-		$childDiv.show('slide', { direction: 'up', origin: ['top', 'left'] }, 'medium');
+		$childDiv.show('slide', { direction: 'up', origin: ['top', 'left'] }, viz.CR_SLIDE_SPEED);
 		$div.addClass('CR-expanded');
 	},
 
@@ -821,7 +828,7 @@ viz = {
 		var $div = $('div[data-cn="'+CN_id+'"]');
 		var $childDiv = $div.find('.CN-tasks');
 		// Collapse it
-		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, viz.CN_SLIDE_SPEED);
 		$div.removeClass('CN-expanded');
 		// Collapse the children
 		if(collapseChildren) {
@@ -838,7 +845,7 @@ viz = {
 		var $div = $('div[data-cn="'+CN_id+'"]');
 		// Expand it
 		var $childDiv = $div.find('.CN-tasks');
-		$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, viz.CN_SLIDE_SPEED);
 		$div.addClass('CN-expanded');
 	},
 
@@ -987,10 +994,8 @@ viz = {
 		// Get the elements
 		var $div = $('div[data-ct="'+CT_id+'"]');
 		var $childDiv = $div.find('.CT-parts');
-		var $blockContainer = $div.find('.CT-block-container');
 		// Collapse it
-		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-		$blockContainer.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$childDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, viz.CT_SLIDE_SPEED);
 		$div.removeClass('CT-expanded');
 	},
 
@@ -1001,10 +1006,8 @@ viz = {
 		var $div = $('div[data-ct="'+CT_id+'"]');
 		// Get the content elements
 		var $childDiv = $div.find('.CT-parts');
-		var $blockContainer = $div.find('.CT-block-container');
 		// Expand it
-		$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-		$blockContainer.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$childDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, viz.CT_SLIDE_SPEED);
 		$div.addClass('CT-expanded');
 	},
 
@@ -1037,9 +1040,6 @@ viz = {
 		var tableRow = $div.find('#partRow')[0];
 		data.tableRow = tableRow;
 
-		var $blockContainer = $div.find('.CT-block-container'),
-			blockContainer = $blockContainer[0];
-
 		// Create the collapse/expand children button
 		$title.click(function() {
 			if($childDiv.is(':visible')) {
@@ -1052,7 +1052,6 @@ viz = {
 
 		// Hide the content
 		$childDiv.hide();
-		$blockContainer.hide();
 
 		if(viz.log) console.groupEnd();
 
@@ -1068,10 +1067,7 @@ viz = {
 			var partArray = parts[part_id];
 			for(var i=0;i<partArray.length;i++) {
 				var partData = partArray[i];
-				var partDiv = viz.createPartDivision(part_id, partData);
-				// var partDiv = viz.createPartDivision(part_id+'['+i+']', partData);
 				var colIndex = viz.getColumnIndex(partData.task);
-				//$(tableRow.children[colIndex]).append(partDiv);
 			}
 		}
 		// Loop through the blocks
@@ -1088,76 +1084,6 @@ viz = {
 		}
 		// Set the loaded flag
 		data.loaded = true;
-	},
-
-	createPartDivision: function viz_createPartDivision(id, data) {
-
-		var div = document.createElement('div'),
-			$div = $(div);
-		div.className = 'part';
-
-		var title = document.createElement('h4');
-		$(title).text(id);
-		$div.append(title);
-
-		// JR: This is just temporary, just to show all the part data
-
-		// Add the data
-		var dl = document.createElement('dl');
-
-		// JR: objectDescription is ignored for now, too much text
-
-		var propertyNames = [
-			'task',
-			// 'objectDescription',
-			'currentState',
-			'user',
-			'role',
-			'created',
-			'lastModified',
-			'status'
-		];
-
-		var templateData = {};
-		for(var i=0;i<propertyNames.length;i++) {
-			templateData[propertyNames[i]] = data[propertyNames[i]];
-		}
-		templateData.id = id;
-
-		// $.addTemplateFormatter({
-		// 	upperCaseFormatter : function(value, template) {
-		// 			return value.toUpperCase();
-		// 		},
-		// 	lowerCaseFormatter : function(value, template) {
-		// 			return value.toLowerCase();
-		// 		},
-		// 	sameCaseFormatter : function(value, template) {
-		// 			if(template == 'upper') {
-		// 				return value.toUpperCase();
-		// 			}
-		// 			return value.toLowerCase();
-		// 		}
-		// });
-
-		$div.loadTemplate('#part-template', templateData);
-
-		var $header = $div.find('.part-header');
-		var $contentDiv = $div.find('.part-content');
-
-		$contentDiv.hide();
-
-		// Create the collapse/expand children button
-		$header.click(function() {
-			if($contentDiv.is(':visible')) {
-				$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-			}
-			else {
-				$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-			}
-		});
-
-		return div;
-
 	},
 
 	createBlockDivision: function viz_createBlockDivision(id, data) {
@@ -1233,14 +1159,10 @@ viz = {
 		// Create the collapse/expand children button
 		$header.click(function() {
 			if($contentDiv.is(':visible')) {
-				//$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 				viz.collapseBlock($div);
-				console.log("collapse");
 			}
 			else {
-				//$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 				viz.expandBlock($div);
-				console.log("expand");
 			}
 		});
 
@@ -1258,15 +1180,13 @@ viz = {
 	},
 	
 	expandBlock: function viz_expandBlock(div){
-		console.log("expanding");
 		var $contentDiv = div.find('.block-content');
-		$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
+		$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, viz.BLOCK_SLIDE_SPEED);
 	},
+
 	collapseBlock: function viz_collapseBlock(div){
-		console.log("collapsing");
 		var $contentDiv = div.find('.block-content');
-		$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-		
+		$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, viz.BLOCK_SLIDE_SPEED);		
 	},
 
 	createPartRow: function viz_createPartRow(id, data) {
