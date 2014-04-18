@@ -27,6 +27,8 @@
 
 		Make it all faster for IE8
 
+		Make the date strings parse correctly in IE8
+
 */
 
 viz = {
@@ -224,6 +226,7 @@ viz = {
 			created_index = row.indexOf('Created'),
 			lastModified_index = row.indexOf('Last Modified');
 
+		// Create the toplevel data object
 		var json = {
 			records: {},
 			recordCount: 0
@@ -243,7 +246,9 @@ viz = {
 			var CR_id = row[CR_index],
 				CN_id = row[CN_index],
 				CT_id = row[CT_index],
-				part_id = row[part_index];
+				part_id = row[part_index],
+				createdValue = new Date(row[created_index]).valueOf(),
+				modifiedValue = new Date(row[lastModified_index]).valueOf();
 
 			// Create new CR object if needed
 			if(typeof json.records[CR_id] !== 'object') {
@@ -275,10 +280,8 @@ viz = {
 				CN.objectDescription = row[objectDescription_index];
 				CN.currentState = row[currentState_index];
 				CN.user = row[user_index];
-				// CN.role = row[role_index];
-				CN.created = new Date(row[created_index]).valueOf();
-				CN.lastModified = new Date(row[lastModified_index]).valueOf();
-				// CN.status = row[status_index];
+				CN.created = createdValue;
+				CN.lastModified = modifiedValue;
 
 			}
 			else {
@@ -304,10 +307,8 @@ viz = {
 					CT.objectDescription = row[objectDescription_index];
 					CT.currentState = row[currentState_index];
 					CT.user = row[user_index];
-					// CT.role = row[role_index];
-					CT.created = new Date(row[created_index]).valueOf();
-					CT.lastModified = new Date(row[lastModified_index]).valueOf();
-					// CT.status = row[status_index];
+					CT.created = createdValue;
+					CT.lastModified = modifiedValue;
 
 				}
 				else {
@@ -325,10 +326,8 @@ viz = {
 						objectDescription: row[objectDescription_index],
 						currentState: row[currentState_index],
 						user: row[user_index],
-						// role: row[role_index],
-						created: new Date(row[created_index]).valueOf(),
-						lastModified: new Date(row[lastModified_index]).valueOf(),
-						// status: row[status_index]
+						created: createdValue,
+						lastModified: modifiedValue,
 					};
 
 					// Also sort the part by "user-task" in the CT object
@@ -561,7 +560,7 @@ viz = {
 
 		// Hide the status text
 		viz.hideStatus();
-					
+
 	},
 
 
@@ -1089,7 +1088,7 @@ viz = {
 
 		// JR: TODO: Since we're moving to the block view rather than parts, remove this part div eventually
 		var $childDiv = $div.find('.CT-parts');
-		var tableRow = $div.find('#partRow')[0];
+		var tableRow = $div.find('.partRow')[0];
 		data.tableRow = tableRow;
 
 		// Create the collapse/expand children button
@@ -1170,21 +1169,6 @@ viz = {
 		}
 		templateData.id = id;
 
-		// $.addTemplateFormatter({
-		// 	upperCaseFormatter : function(value, template) {
-		// 			return value.toUpperCase();
-		// 		},
-		// 	lowerCaseFormatter : function(value, template) {
-		// 			return value.toLowerCase();
-		// 		},
-		// 	sameCaseFormatter : function(value, template) {
-		// 			if(template == 'upper') {
-		// 				return value.toUpperCase();
-		// 			}
-		// 			return value.toLowerCase();
-		// 		}
-		// });
-
 		$div.loadTemplate('#part-template', templateData);
 
 		var $header = $div.find('.part-header');
@@ -1214,33 +1198,28 @@ viz = {
 		$div.attr('data-block',id);
 
 		var parts = data.parts;
-		var partsAmount=0;
+		var partsAmount = 0;
+		var oldestPart = 0;
 
-		
-		var oldestPart =0;
-
-		
 		for(var part_id in parts){
-			
-			var partPiece = parts[part_id];
-			if(oldestPart == 0)
-				oldestPart = partPiece[0].created;
 
+			var partPiece = parts[part_id];
+			if(oldestPart === 0) {
+				oldestPart = partPiece[0].created;
+			}
 			
 			day = partPiece[0].created;
-			if(part_id == 0)
+			if(part_id === 0) {
 				oldestPart = partPiece[0].created;
+			}
 
 			//if(viz.log) console.log(partPiece[0]);
-			
+
 			day = partPiece.created;
 			if (day < oldestPart)
-				oldestPart=day;
+				oldestPart = day;
 			partsAmount++;
 		}
-
-		
-			
 
 		//get current time
 		var seconds = new Date().getTime();
@@ -1248,11 +1227,11 @@ viz = {
 		//console.log("seconds: "+ seconds);
 		
 		//subtract current time - oldest part time
-		oldestPart=seconds-oldestPart;
-		oldestPart=parseInt(oldestPart/(1000*3600*24));
+		oldestPart = seconds-oldestPart;
+		oldestPart = Math.floor(oldestPart/(1000*3600*24));
 		//console.log("oldest: "+ oldestPart);
 		//get current time
-		
+
 
 		var pretask = id.split(':')[1];
 		var templateData = {
@@ -1262,27 +1241,26 @@ viz = {
 			days: "Days: " + oldestPart
 		};
 
-		
+
+		// Create and insert the header
 
 		$div.loadTemplate('#block-template', templateData);
-
-
-		var $header = $div.find('.block-header');
-		var $contentDiv = $div.find('.block-content');
+		var $header = viz.createBlockHeaderDivision(templateData);
+		var colIndex = viz.getColumnIndex(templateData.task);
+		$($div.find('.partRow')[0].children[colIndex]).append($header);
 
 		// Hide the content
+
+		var $contentDiv = $div.find('.block-content');
 		$contentDiv.hide();
 
 		// Create the collapse/expand children button
 		$header.click(function() {
 			if($contentDiv.is(':visible')) {
-				//$contentDiv.hide('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				viz.collapseBlock(CR_id,CN_id,CT_id,id);
+				viz.collapseBlock(CR_id, CN_id, CT_id, id);
 			}
 			else {
-				//$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
-				viz.expandBlock(CR_id,CN_id,CT_id,id);
-
+				viz.expandBlock(CR_id, CN_id, CT_id, id);
 			}
 		});
 
@@ -1294,6 +1272,17 @@ viz = {
 			$contentDiv.append(viz.createPartRow(part_id, part));
 		}
 
+
+		return $div;
+
+	},
+
+	createBlockHeaderDivision: function(data) {
+		var div = document.createElement('div'),
+			$div = $(div);
+		div.className = 'block-header';
+
+		$div.loadTemplate('#block-header-template', data);
 
 		return $div;
 

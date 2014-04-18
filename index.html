@@ -182,17 +182,7 @@
 		<table class="block-header-table">
 			<tbody>
 				<tr id="partRow">
-					<td>
-						<div class="block-header">
-						<span class="block-user" data-content="user"></span>
-						<br>
-						<span class="block-task" data-content="task"></span>
-						<br>
-						<span class="block-parts" data-content="parts"></span>
-						<br>
-						<span class="block-days" data-content="days"></span>
-						</div>
-					</td>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
@@ -216,21 +206,30 @@
 				<th>Current State</th>
 				<th>User</th>
 				<th>Days late</th>
-				
 			</tr>
 			</tbody>
 		</table>
 	</script>
 
 
+
+	<!-- Block Header Template -->
+	<script type="text/html" id="block-header-template">
+						<span class="block-user" data-content="user"></span>
+						<br>
+						<span class="block-task" data-content="task"></span>
+						<br>
+						<span class="block-parts" data-content="parts"></span>
+						<br>
+						<span class="block-days" data-content="days"></span>
+	</script>
+
 	<!-- Part Row Template -->
 	<script type="text/html" id="part-row-template">
-			<td data-content="objectDescription"></td>
-			
-
-			<td data-content="currentState"></td>
-			<td data-content="user"></td>
-			<td data-content="days"></td>		
+		<td data-content="objectDescription"></td>
+		<td data-content="currentState"></td>
+		<td data-content="user"></td>
+		<td data-content="days"></td>
 	</script>
 
 
