@@ -1037,7 +1037,7 @@ viz = {
 			// Get the div
 			var $div = $('div[data-ct="'+CT_id+'"]');
 			// Fill the content
-			viz.fillTaskDivision(CR_id, CN_id, CT_id, CT_data, CT_data.tableRow, $div.find('.CT-block-container'));
+			viz.fillTaskDivision(CR_id, CN_id, CT_id, CT_data, $div.find('.CT-block-container'));
 		}
 	},
 
@@ -1088,8 +1088,6 @@ viz = {
 
 		// JR: TODO: Since we're moving to the block view rather than parts, remove this part div eventually
 		var $childDiv = $div.find('.CT-parts');
-		var tableRow = $div.find('.partRow')[0];
-		data.tableRow = tableRow;
 
 		// Create the collapse/expand children button
 		$title.click(function() {
@@ -1111,7 +1109,7 @@ viz = {
 	},
 
 	// This method fills a task division content div with its content
-	fillTaskDivision: function viz_fillTaskDivision(CR_id, CN_id, id, data, tableRow, blockContainer) {
+	fillTaskDivision: function viz_fillTaskDivision(CR_id, CN_id, id, data, blockContainer) {
 		// Loop through every part
 		var parts = data.parts;
 		for(var part_id in parts) {
@@ -1129,7 +1127,6 @@ viz = {
 			colIndex = viz.getColumnIndex(block_id.split(':')[1]);
 			if(viz.log) console.log("column index",colIndex);
 			$blockContainer.append(blockDiv);
-			//$(tableRow.children[colIndex]).append(blockDiv);
 		}
 		// Set the loaded flag
 		data.loaded = true;
