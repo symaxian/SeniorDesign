@@ -1,5 +1,5 @@
-/*
 
+/*
 	Notes:
 
 		Null ID's
@@ -229,7 +229,8 @@ viz = {
 		// Create the toplevel data object
 		var json = {
 			records: {},
-			recordCount: 0
+			recordCount: 0,
+			lateRecordCount: 0
 		};
 
 		// Loop through every row
@@ -243,6 +244,7 @@ viz = {
 				continue;
 			}
 
+			//because IE8 doesn't, this code parses the date given by excel
 			var createdDateStr=row[created_index]; //returned from mysql timestamp/datetime field
 			var a=createdDateStr.split(" ");
 			var d=a[0].split("-");
@@ -254,6 +256,7 @@ viz = {
 			d=a[0].split("-");
 			t=a[1].split(":");
 			var modifiedDate = new Date(d[0],(d[1]-1),d[2],t[0],t[1], 0);//assumes all timezones are the same
+			//end of IE8 date parsing code
 
 			var CR_id = row[CR_index],
 				CN_id = row[CN_index],
@@ -267,6 +270,7 @@ viz = {
 				json.records[CR_id] = {
 					notices: {},
 					noticeCount: 0,
+					lateNoticeCount: 0,
 					loaded: false
 				};
 				json.recordCount++;
@@ -278,6 +282,7 @@ viz = {
 				CR.notices[CN_id] = {
 					tasks: {},
 					taskCount: 0,
+					lateTaskCount: 0,
 					loaded: false
 				};
 				CR.noticeCount++;
@@ -303,8 +308,10 @@ viz = {
 					CN.tasks[CT_id] = {
 						parts: {},
 						partCount: 0,
+						latePartCount: 0,
 						blocks: {},
 						blockCount: 0,
+						lateBlockCount: 0,
 						loaded: false
 					};
 					CN.taskCount++;
@@ -347,7 +354,8 @@ viz = {
 					if(typeof CT.blocks[userBlockId] !== 'object') {
 						CT.blocks[userBlockId] = {
 							parts: {},
-							partCount: 0
+							partCount: 0,
+							latePartCount: 0
 						};
 						CT.userCount++;
 					}
@@ -822,7 +830,8 @@ viz = {
 		// Load the template
 		var templateData = {
 			title: 'Change Record: '+CR_id,
-			count: data.noticeCount
+			count: data.noticeCount,
+			lateCount: data.lateNoticeCount
 		};
 		$div.loadTemplate('#CR-template', templateData);
 
@@ -921,6 +930,7 @@ viz = {
 		var templateData = {
 			id: CN_id,
 			count: data.taskCount,
+			lateCount: data.lateTaskCount,
 			user: data.user,
 			currentState: data.currentState,
 			objectDescription: data.objectDescription
@@ -1088,6 +1098,7 @@ viz = {
 		var templateData = {
 			id: id,
 			count: data.partCount,
+			lateCount: data.latePartCount,
 			user: data.user,
 			task: data.task,
 			currentState: data.currentState,
@@ -1192,20 +1203,29 @@ viz = {
 			user: id.split(',')[0],
 			task: pretask.split('-')[0],
 			parts: "Parts: " + partsAmount,
-			days: "Days: " + oldestPart
+			days: "Days Late: " + oldestPart
 		};
 
 
 		// Create and insert the header
-
+		
 		$div.loadTemplate('#block-template', templateData);
 		var $header = viz.createBlockHeaderDivision(templateData);
+		
+		//user block red after 5 days late
+		if (oldestPart > 5)
+			$header.addClass('block-late');
+		
 		var colIndex = viz.getColumnIndex(templateData.task);
 		$($div.find('.partRow')[0].children[colIndex]).append($header);
 
 		// Hide the content
 
 		var $contentDiv = $div.find('.block-content');
+
+
+
+
 		$contentDiv.hide();
 
 		// Create the collapse/expand children button
@@ -1271,6 +1291,20 @@ viz = {
 		var templateData = data;
 		
 
+		//--Days late code
+		
+			var createdTime = data.created;
+			//get current time
+			var seconds = new Date().getTime();
+			
+			//subtract current time - created part time
+			createdTime = seconds-createdTime;
+			createdTime = Math.floor(createdTime/(1000*3600*24));
+			templateData.created = createdTime;
+
+			
+		//--end days late code
+		
 		$div.loadTemplate('#part-row-template', templateData);
 
 		return $div;

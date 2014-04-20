@@ -271,3 +271,12 @@ body {
 	background-color: #DDFFFF;
 	cursor: pointer;
 }
+.block-late {
+	background-color: #ff1919;
+
+}
+
+.block-late:hover {
+	background-color: #ff3232;
+	cursor: pointer;
+}
