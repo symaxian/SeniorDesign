@@ -49,6 +49,12 @@ viz = {
 
 	log: null,
 
+
+	LATE_THRESHOLD: 50,
+
+	ALMOST_LATE_THRESHOLD: 30,
+
+
 	DATA_FILEPATH: 'taskreport.csv',
 		// The filepath for the CSV data
 
@@ -343,7 +349,9 @@ viz = {
 							user: row[user_index],
 							created: createdValue,
 							lastModified: modifiedValue,
-							daysLate: NaN
+							daysLate: NaN,
+							isLate: false,
+							isAlmostLate: false
 						};
 						CT.partCount++;
 					}
@@ -360,6 +368,12 @@ viz = {
 
 					part.daysLate = daysLate;
 
+					if(daysLate > viz.LATE_THRESHOLD) {
+						part.isLate = true;
+					}
+					else if(daysLate > viz.ALMOST_LATE_THRESHOLD) {
+						part.isAlmostLate = true;
+					}
 
 					// Also sort the part by "user-task" in the CT object
 					var userBlockId = part.user + ':' + part.task;
@@ -369,7 +383,7 @@ viz = {
 							partCount: 0,
 							latePartCount: 0
 						};
-						CT.userCount++;
+						CT.blockCount++;
 					}
 					var userBlockData = CT.blocks[userBlockId];
 					if(typeof userBlockData.parts[part_id] !== 'object') {
@@ -383,6 +397,8 @@ viz = {
 			}
 
 		}
+
+		viz.tallyLateCounts(json);
 
 		// Derive the begin-end time points for each task
 		viz.calculateAllTaskTimes(json);
@@ -403,6 +419,39 @@ viz = {
 				var tasks = notices[CN_id].tasks;
 				for(var CT_id in tasks) {
 					viz.calculateTaskTime(tasks[CT_id]);
+				}
+			}
+		}
+	},
+
+	tallyLateCounts: function viz_tallyLateCounts(json) {
+		// Loop through the records
+		var records = json.records;
+		for(var CR_id in records) {
+			// Loop through the notices
+			var notices = records[CR_id].notices;
+			for(var CN_id in notices) {
+				// Loop through the tasks
+				var tasks = notices[CN_id].tasks;
+				for(var CT_id in tasks) {
+					var task = tasks[CT_id];
+					// Loop through the blocks
+					var blocks = task.blocks;
+					for(var block_id in blocks) {
+						var block = blocks[block_id];
+						// Loop through the parts
+						var parts = block.parts;
+						for(var part_id in parts) {
+							var part = parts[part_id];
+							if(part.isLate) {
+								block.latePartCount++;
+							}
+						}
+						// Check if block is late
+						if(block.latePartCount) {
+							task.lateBlockCount++;
+						}
+					}
 				}
 			}
 		}
@@ -1124,14 +1173,18 @@ viz = {
 		// Load the template
 		var templateData = {
 			id: id,
-			count: data.partCount,
-			lateCount: data.latePartCount,
+			count: data.blockCount,
+			lateCount: data.lateBlockCount,
 			user: data.user,
 			task: data.task,
 			currentState: data.currentState,
 			objectDescription: data.objectDescription
 		};
 		$div.loadTemplate('#CT-template', templateData);
+
+		if(data.lateBlockCount) {
+			$div.find('.lateCountSpan').removeClass('hidden');
+		}
 
 		// Get the title and notices div
 		var $title = $div.find('.CT-title');
@@ -1301,12 +1354,10 @@ viz = {
 
 		$div.loadTemplate('#part-row-template', data);
 
-		console.log(data);
-
-		if(data.daysLate > 50) {
+		if(data.isLate) {
 			$div.addClass('part-row-late');
 		}
-		else if(data.daysLate > 30) {
+		else if(data.isAlmostLate) {
 			$div.addClass('part-row-almostLate');
 		}
 
