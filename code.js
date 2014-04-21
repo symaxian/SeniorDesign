@@ -487,13 +487,14 @@ viz = {
 		$("#resetButton").click(function(){
 			viz.resetPage();
 		});
-		
-		//if enter key pressed, filter
-		$('#filterBox').on("keypress", function(e) {
+
+		$(document).keydown(function(e){
+			//if enter key pressed, filter
 			if (e.keyCode == 13) {
 				viz.filterPage();
 			}
 		});
+		
 
 		var i;
 
@@ -729,7 +730,7 @@ viz = {
 		var $div = $('div[data-block="'+block_id+'"]');
 		var visible = false;
 		
-		console.log("BLOCK DATA",data);
+		//console.log("BLOCK DATA",data);
 		if(viz.filterRegex.test(block_id)) {
 			visible = true;
 		}
@@ -759,7 +760,7 @@ viz = {
 
 	filterPart: function viz_filterPart(part_id,data){
 		var visible = false;
-		console.log("part data: ",data[0]);
+		//console.log("part data: ",data[0]);
 		data=data[0];
 		//filter through properties of the parts for the filterWord
 		if(data.role)				visible = visible || viz.filterRegex.test(data.role);
@@ -1148,7 +1149,7 @@ viz = {
 		for(var block_id in blocks) {
 			var blockDiv = viz.createBlockDivision(CR_id, CN_id, id,block_id, blocks[block_id]);
 			colIndex = viz.getColumnIndex(block_id.split(':')[1]);
-			if(viz.log) console.log("column index",colIndex);
+			//if(viz.log) console.log("column index",colIndex);
 			$blockContainer.append(blockDiv);
 		}
 		// Set the loaded flag
@@ -1212,10 +1213,12 @@ viz = {
 		$div.loadTemplate('#block-template', templateData);
 		var $header = viz.createBlockHeaderDivision(templateData);
 		
-		//user block red after 5 days late
-		if (oldestPart > 5)
+		//user block red after 50 days late, yellow for 30-50 days
+		if (oldestPart >= 50)
 			$header.addClass('block-late');
-		
+		else if(oldestPart > 30 && oldestPart < 50)
+			$header.addClass('block-almostlate');
+
 		var colIndex = viz.getColumnIndex(templateData.task);
 		$($div.find('.partRow')[0].children[colIndex]).append($header);
 
