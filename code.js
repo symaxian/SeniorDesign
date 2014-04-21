@@ -245,6 +245,7 @@ viz = {
 			}
 
 			//because IE8 doesn't, this code parses the date given by excel
+
 			var createdDateStr=row[created_index]; //returned from mysql timestamp/datetime field
 			var a=createdDateStr.split(" ");
 			var d=a[0].split("-");
@@ -256,7 +257,8 @@ viz = {
 			d=a[0].split("-");
 			t=a[1].split(":");
 			var modifiedDate = new Date(d[0],(d[1]-1),d[2],t[0],t[1], 0);//assumes all timezones are the same
-			//end of IE8 date parsing code
+
+			// End of IE8 date parsing code
 
 			var CR_id = row[CR_index],
 				CN_id = row[CN_index],
@@ -334,23 +336,33 @@ viz = {
 
 					// Create new part array if needed
 					if(typeof CT.parts[part_id] !== 'object') {
-						CT.parts[part_id] = [];
+						CT.parts[part_id] = {
+							task: row[task_index],
+							objectDescription: row[objectDescription_index],
+							currentState: row[currentState_index],
+							user: row[user_index],
+							created: createdValue,
+							lastModified: modifiedValue,
+							daysLate: NaN
+						};
 						CT.partCount++;
 					}
+
 					var part = CT.parts[part_id];
 
-					// Add a new part piece object to the CT object
-					var partPiece = {
-						task: row[task_index],
-						objectDescription: row[objectDescription_index],
-						currentState: row[currentState_index],
-						user: row[user_index],
-						created: createdValue,
-						lastModified: modifiedValue,
-					};
+
+					// Get current time
+					var currentTime = new Date().getTime();
+
+					// Subtract current time - created part time
+					var daysLate = currentTime-part.created;
+					daysLate = Math.floor(daysLate/(1000*3600*24));
+
+					part.daysLate = daysLate;
+
 
 					// Also sort the part by "user-task" in the CT object
-					var userBlockId = partPiece.user + ':' + partPiece.task;
+					var userBlockId = part.user + ':' + part.task;
 					if(typeof CT.blocks[userBlockId] !== 'object') {
 						CT.blocks[userBlockId] = {
 							parts: {},
@@ -363,9 +375,8 @@ viz = {
 					if(typeof userBlockData.parts[part_id] !== 'object') {
 						userBlockData.parts[part_id] = [];
 					}
-					userBlockData.parts[part_id].push(partPiece);
-
-					part.push(partPiece);
+					userBlockData.parts[part_id] = part;
+					userBlockData.partCount++;
 
 				}
 
@@ -397,71 +408,86 @@ viz = {
 		}
 	},
 
+	// FIXME: This function is broken
+
 	calculateTaskTime: function viz_calculateTaskTimes(CT) {
+
 		var minCreated = Infinity,
 			maxCreated = 0,
 			minModified = Infinity,
 			maxModified = 0;
-		// Loop through the parts
-		var parts = CT.parts;
-		for(var part_id in parts) {
-			var part = parts[part_id];
-			// Loop through the part pieces
-			for(var partPieceIndex=0; partPieceIndex<part.length; partPieceIndex++) {
 
-				// Get the part piece data and the times
-				var partPiece = part[partPieceIndex];
-				var created = partPiece.created,
-					modified = partPiece.lastModified;
+		// Loop through the blocks
+		var blocks = CT.blocks;
+		for(var block_id in blocks) {
+			var block = blocks[block_id];
 
-				// Update the min/max times
-				if(created < minCreated) {
-					minCreated = created;
+			// Loop through the parts
+			var parts = block.parts;
+			for(var part_id in parts) {
+				var part = parts[part_id];
+
+				// Loop through the part pieces
+				for(var partPieceIndex=0; partPieceIndex<part.length; partPieceIndex++) {
+
+					// Get the part piece data and the times
+					var partPiece = part[partPieceIndex];
+					var created = partPiece.created,
+						modified = partPiece.lastModified;
+
+					// Update the min/max times
+					if(created < minCreated) {
+						minCreated = created;
+					}
+					else if(created > maxCreated) {
+						maxCreated = created;
+					}
+					if(modified < minModified) {
+						minModified = modified;
+					}
+					else if(modified > maxModified) {
+						maxModified = modified;
+					}
+
+					// The four blocks of commented code below were used to collect the possible property values
+					// This was done to then create dropdowns to filter from these values
+
+					// Grab the part user
+					// var user = partPiece.user;
+					// if(viz.users.indexOf(user) === -1) {
+					// 	viz.users.push(user);
+					// }
+
+					//Grab the part status
+					// var status = partPiece.status;
+					// if(viz.partStatus.indexOf(status) === -1) {
+					// 	viz.partStatus.push(status);
+					// }
+
+					//Grab the tasks
+					// var task = partPiece.task;
+					// if(viz.tasks.indexOf(task) === -1) {
+					// 	viz.tasks.push(task);
+					// }
+
+					//Grab the current states
+					// var currentState = partPiece.currentState;
+					// if(viz.currentStates.indexOf(currentState) === -1) {
+					// 	viz.currentStates.push(currentState);
+					// }
+
 				}
-				else if(created > maxCreated) {
-					maxCreated = created;
-				}
-				if(modified < minModified) {
-					minModified = modified;
-				}
-				else if(modified > maxModified) {
-					maxModified = modified;
-				}
-
-				// The four blocks of commented code below were used to collect the possible property values
-				// This was done to then create dropdowns to filter from these values
-
-				// Grab the part user
-				// var user = partPiece.user;
-				// if(viz.users.indexOf(user) === -1) {
-				// 	viz.users.push(user);
-				// }
-
-				//Grab the part status
-				// var status = partPiece.status;
-				// if(viz.partStatus.indexOf(status) === -1) {
-				// 	viz.partStatus.push(status);
-				// }
-
-				//Grab the tasks
-				// var task = partPiece.task;
-				// if(viz.tasks.indexOf(task) === -1) {
-				// 	viz.tasks.push(task);
-				// }
-
-				//Grab the current states
-				// var currentState = partPiece.currentState;
-				// if(viz.currentStates.indexOf(currentState) === -1) {
-				// 	viz.currentStates.push(currentState);
-				// }
-
 			}
+
 		}
+
+		// FIXME: Broken
+
 		// Set the data on the CT
-		CT.minCreated = minCreated;
-		CT.maxCreated = maxCreated;
-		CT.minModified = minModified;
-		CT.maxModified = maxModified;
+		// CT.minCreated = minCreated;
+		// CT.maxCreated = maxCreated;
+		// CT.minModified = minModified;
+		// CT.maxModified = maxModified;
 	},
 
 	
@@ -761,7 +787,7 @@ viz = {
 	filterPart: function viz_filterPart(part_id,data){
 		var visible = false;
 		//console.log("part data: ",data[0]);
-		data=data[0];
+		// data=data[0];
 		//filter through properties of the parts for the filterWord
 		if(data.role)				visible = visible || viz.filterRegex.test(data.role);
 		if(data.currentState)		visible = visible || viz.filterRegex.test(data.currentState);
@@ -1163,61 +1189,52 @@ viz = {
 		div.className = 'block';
 		$div.attr('data-block',id);
 
-		var parts = data.parts;
-		var partsAmount = 0;
-		var oldestPart = 0;
+		var parts = data.parts,
+			part_id, part;
 
-		for(var part_id in parts){
+		var oldestPart = NaN;
 
-			var partPiece = parts[part_id];
-			if(oldestPart === 0) {
-				oldestPart = partPiece[0].created;
-			}
-			
-			day = partPiece[0].created;
-			if(part_id === 0) {
-				oldestPart = partPiece[0].created;
+		for(part_id in parts){
+
+			part = parts[part_id];
+
+			if(isNaN(oldestPart) || part.created < oldestPart) {
+				oldestPart = part.created;
 			}
 
-			//if(viz.log) console.log(partPiece[0]);
-
-			day = partPiece.created;
-			if (day < oldestPart)
-				oldestPart = day;
-			partsAmount++;
 		}
 
 		//get current time
 		var seconds = new Date().getTime();
 
 		//console.log("seconds: "+ seconds);
-		
+
 		//subtract current time - oldest part time
 		oldestPart = seconds-oldestPart;
 		oldestPart = Math.floor(oldestPart/(1000*3600*24));
 		//console.log("oldest: "+ oldestPart);
 		//get current time
 
-
 		var pretask = id.split(':')[1];
 		var templateData = {
 			user: id.split(',')[0],
 			task: pretask.split('-')[0],
-			parts: "Parts: " + partsAmount,
+			parts: "Parts: " + data.partCount,
 			days: "Days Late: " + oldestPart
 		};
 
-
 		// Create and insert the header
-		
+
 		$div.loadTemplate('#block-template', templateData);
 		var $header = viz.createBlockHeaderDivision(templateData);
-		
+
 		//user block red after 50 days late, yellow for 30-50 days
-		if (oldestPart >= 50)
+		if (oldestPart >= 50) {
 			$header.addClass('block-late');
-		else if(oldestPart > 30 && oldestPart < 50)
-			$header.addClass('block-almostlate');
+		}
+		else if(oldestPart > 30 && oldestPart < 50) {
+			$header.addClass('block-almostLate');
+		}
 
 		var colIndex = viz.getColumnIndex(templateData.task);
 		$($div.find('.partRow')[0].children[colIndex]).append($header);
@@ -1225,9 +1242,6 @@ viz = {
 		// Hide the content
 
 		var $contentDiv = $div.find('.block-content');
-
-
-
 
 		$contentDiv.hide();
 
@@ -1241,20 +1255,16 @@ viz = {
 			}
 		});
 
-		// Fill the content div
-		//var parts = data.parts;
-		for(var part_id in parts) {
-			// JR: FIXME: The parts are an array, but it seems that 
-			var part = parts[part_id][0];
-			$contentDiv.append(viz.createPartRow(part_id, part));
+		// Fill the content div with part rows
+		for(part_id in parts) {
+			$contentDiv.append(viz.createPartRow(part_id, parts[part_id]));
 		}
-
 
 		return $div;
 
 	},
 
-	createBlockHeaderDivision: function(data) {
+	createBlockHeaderDivision: function viz_createBlockHeaderDivision(data) {
 		var div = document.createElement('div'),
 			$div = $(div);
 		div.className = 'block-header';
@@ -1266,7 +1276,7 @@ viz = {
 	},
 
 	expandBlock: function viz_expandBlock(CR_id, CN_id, CT_id, block_id){
-		
+
 		//get the elements
 		var $div = $('div[data-block="'+block_id+'"]');
 		//console.log($div);
@@ -1275,7 +1285,7 @@ viz = {
 		$contentDiv.show('slide', { direction: 'up', origin: ['top', 'center'] }, 'slow');
 
 	},
-	
+
 	collapseBlock: function viz_collapseBlock(CR_id, CN_id, CT_id, block_id){
 		//get the elements
 		var $div = $('div[data-block="'+block_id+'"]');
@@ -1285,30 +1295,20 @@ viz = {
 		
 	},
 
-
 	createPartRow: function viz_createPartRow(id, data) {
 
-		var div = document.createElement('tr'),
-			$div = $(div);
+		var $div = $(document.createElement('tr'));
 
-		var templateData = data;
-		
+		$div.loadTemplate('#part-row-template', data);
 
-		//--Days late code
-		
-			var createdTime = data.created;
-			//get current time
-			var seconds = new Date().getTime();
-			
-			//subtract current time - created part time
-			createdTime = seconds-createdTime;
-			createdTime = Math.floor(createdTime/(1000*3600*24));
-			templateData.created = createdTime;
+		console.log(data);
 
-			
-		//--end days late code
-		
-		$div.loadTemplate('#part-row-template', templateData);
+		if(data.daysLate > 50) {
+			$div.addClass('part-row-late');
+		}
+		else if(data.daysLate > 30) {
+			$div.addClass('part-row-almostLate');
+		}
 
 		return $div;
 

@@ -263,7 +263,7 @@ body {
 	background-color: #BBFFFF;
 }
 
-.block-user, .block-task,.block-parts,.block-days {
+.block-user, .block-task, .block-parts, .block-days {
 	font-weight: bold;
 }
 
@@ -271,16 +271,25 @@ body {
 	background-color: #DDFFFF;
 	cursor: pointer;
 }
+
 .block-late {
+	/*background-color: #ff1919;*/
+	border: 4px solid #ff1919;
+
+}
+
+.block-almostLate {
+	/*background-color: #ffff00;*/
+	border: 4px solid #ffff00;
+
+}
+
+.part-row-late {
+	/*border: 4px solid #ff1919;*/
 	background-color: #ff1919;
-
-}
-.block-almostlate {
-	background-color: #ffff00 ;
-
 }
 
-.block-late:hover {
-	background-color: #ff3232;
-	cursor: pointer;
+.part-row-almostLate {
+	/*border: 4px solid #ffff00;*/
+	background-color: #ffff00;
 }
