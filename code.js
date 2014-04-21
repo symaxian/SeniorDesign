@@ -428,11 +428,13 @@ viz = {
 		// Loop through the records
 		var records = json.records;
 		for(var CR_id in records) {
+			var record = records[CR_id];
 			// Loop through the notices
-			var notices = records[CR_id].notices;
+			var notices = record.notices;
 			for(var CN_id in notices) {
+				var notice = notices[CN_id];
 				// Loop through the tasks
-				var tasks = notices[CN_id].tasks;
+				var tasks = notice.tasks;
 				for(var CT_id in tasks) {
 					var task = tasks[CT_id];
 					// Loop through the blocks
@@ -452,7 +454,19 @@ viz = {
 							task.lateBlockCount++;
 						}
 					}
+					// Check if task is late
+					if(task.lateBlockCount) {
+						notice.lateTaskCount++;
+					}
 				}
+				// Check if notice is late
+				if(notice.lateTaskCount) {
+					record.lateNoticeCount++;
+				}
+			}
+			// Check if record is late
+			if(record.lateNoticeCount) {
+				json.lateRecordCount++;
 			}
 		}
 	},
@@ -909,7 +923,12 @@ viz = {
 			count: data.noticeCount,
 			lateCount: data.lateNoticeCount
 		};
+
 		$div.loadTemplate('#CR-template', templateData);
+
+		if(data.lateNoticeCount) {
+			$div.find('.lateCountSpan').removeClass('hidden');
+		}
 
 		// Get the title and notices div
 		var $title = $div.find('.CR-title');
@@ -1018,6 +1037,10 @@ viz = {
 		}
 
 		$div.loadTemplate('#CN-template', templateData);
+
+		if(data.lateTaskCount) {
+			$div.find('.lateCountSpan').removeClass('hidden');
+		}
 
 		if(typeof data.task === 'undefined') {
 			$div.find('.CN-data').hide();
