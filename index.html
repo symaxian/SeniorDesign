@@ -3,8 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<title>Arent Project Resource Visualizer</title>
-	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
-	<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	<script src="lib/jquery-1.10.2.js"></script>
+	<script src="lib/jquery-ui.js"></script>
 	<script src="lib/jquery-loadTemplate/jquery.loadTemplate-1.4.1.min.js"></script>
 	<script type="text/javascript" src="code.js"></script>
 	<link rel="stylesheet" type="text/css" href="style.css">
@@ -18,34 +18,6 @@
 			<table>
 				<tbody>
 					<tr>
-						<!--
-						<th>Filter by Users</th>
-						<th><form action=""><select name="dropUser" >
-						<option value=""></option>
-						</select>
-						</form>
-						</th>
-						
-						<th>Filter by Status</th>
-						<th><form action=""><select name="dropStatus">
-						<option value=""></option>
-						</select>
-						</form>
-						</th>
-						
-						<th>Filter by Task</th>
-						<th><form action=""><select name="dropTask">
-						<option value=""></option>
-						</select>
-						</form>
-						</th>
-						
-						<th>Filter by Current State</th>
-						<th><form action=""><select name="dropCurrentState">
-						<option value=""></option>
-						</select>
-						</form>
-						</th>-->
 						<td>
 							<input type="text" autofocus="autofocus" id="filterBox">
 						</td>
@@ -142,6 +114,7 @@
 		</div>
 	</script>
 
+
 	<!-- Block Template -->
 	<script type="text/html" id="block-template">
 		<table class="block-header-table">
@@ -176,6 +149,7 @@
 		</table>
 	</script>
 
+
 	<!-- Block Header Template -->
 	<script type="text/html" id="block-header-template">
 		<!-- TODO: Lay this data out in a better format -->
@@ -187,6 +161,7 @@
 		<br>
 		<span class="block-days" data-content="days"></span>
 	</script>
+
 
 	<!-- Part Row Template -->
 	<script type="text/html" id="part-row-template">

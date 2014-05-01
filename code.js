@@ -1,33 +1,22 @@
 
 /*
-	Notes:
-
-		Null ID's
-			We need to decide what to do with null task ID's and null part ID's.
-			At the moment the string "null" is treated as the ID and pushed with the regular data.
-			RESOLVED: A null id means that the relevant row does not provide info on a part, but the CN/CT info
-
-		CN == CT
-			It seems like the change notice ID(CN) is always equal to the change task ID(CT).
-			The only exception is when either or both are "null".
-			Should we collapse CN and CT to a single object?
 
 	TODO:
 
+		Filtering down to the part-row level
+
+		Highlight blocks of text that matched the filtered text
+
 		Highlight headers in the correct column
 
-		Graceful error handling everywhere
-			File missing error handling
-
-		Late part/CT/CN/CR coloring
+		More error handling messages
+			Alert when file is not found
 
 		On hover info text
 
 		Remove log statements
 
 		Make it all faster for IE8
-
-		Make the date strings parse correctly in IE8
 
 */
 
@@ -44,15 +33,15 @@ viz = {
 	//  Constants
 	//_____________//
 
-	DEBUG: true,
+	DEBUG: false,
 		// Whether to log output or not
 
 	log: null,
+		// Whether we will log output or not, this also depends on the console object being available
 
+	LATE_THRESHOLD: 5,
 
-	LATE_THRESHOLD: 50,
-
-	ALMOST_LATE_THRESHOLD: 30,
+	ALMOST_LATE_THRESHOLD: 3,
 
 
 	DATA_FILEPATH: 'taskreport.csv',
@@ -400,28 +389,9 @@ viz = {
 
 		viz.tallyLateCounts(json);
 
-		// Derive the begin-end time points for each task
-		viz.calculateAllTaskTimes(json);
-
 		// Return the data
 		return json;
 
-	},
-
-	calculateAllTaskTimes: function viz_calculateAllTaskTimes(json) {
-		// Loop through the records
-		var records = json.records;
-		for(var CR_id in records) {
-			// Loop through the notices
-			var notices = records[CR_id].notices;
-			for(var CN_id in notices) {
-				// Loop through the tasks
-				var tasks = notices[CN_id].tasks;
-				for(var CT_id in tasks) {
-					viz.calculateTaskTime(tasks[CT_id]);
-				}
-			}
-		}
 	},
 
 	tallyLateCounts: function viz_tallyLateCounts(json) {
@@ -470,89 +440,6 @@ viz = {
 			}
 		}
 	},
-
-	// FIXME: This function is broken
-
-	calculateTaskTime: function viz_calculateTaskTimes(CT) {
-
-		var minCreated = Infinity,
-			maxCreated = 0,
-			minModified = Infinity,
-			maxModified = 0;
-
-		// Loop through the blocks
-		var blocks = CT.blocks;
-		for(var block_id in blocks) {
-			var block = blocks[block_id];
-
-			// Loop through the parts
-			var parts = block.parts;
-			for(var part_id in parts) {
-				var part = parts[part_id];
-
-				// Loop through the part pieces
-				for(var partPieceIndex=0; partPieceIndex<part.length; partPieceIndex++) {
-
-					// Get the part piece data and the times
-					var partPiece = part[partPieceIndex];
-					var created = partPiece.created,
-						modified = partPiece.lastModified;
-
-					// Update the min/max times
-					if(created < minCreated) {
-						minCreated = created;
-					}
-					else if(created > maxCreated) {
-						maxCreated = created;
-					}
-					if(modified < minModified) {
-						minModified = modified;
-					}
-					else if(modified > maxModified) {
-						maxModified = modified;
-					}
-
-					// The four blocks of commented code below were used to collect the possible property values
-					// This was done to then create dropdowns to filter from these values
-
-					// Grab the part user
-					// var user = partPiece.user;
-					// if(viz.users.indexOf(user) === -1) {
-					// 	viz.users.push(user);
-					// }
-
-					//Grab the part status
-					// var status = partPiece.status;
-					// if(viz.partStatus.indexOf(status) === -1) {
-					// 	viz.partStatus.push(status);
-					// }
-
-					//Grab the tasks
-					// var task = partPiece.task;
-					// if(viz.tasks.indexOf(task) === -1) {
-					// 	viz.tasks.push(task);
-					// }
-
-					//Grab the current states
-					// var currentState = partPiece.currentState;
-					// if(viz.currentStates.indexOf(currentState) === -1) {
-					// 	viz.currentStates.push(currentState);
-					// }
-
-				}
-			}
-
-		}
-
-		// FIXME: Broken
-
-		// Set the data on the CT
-		// CT.minCreated = minCreated;
-		// CT.maxCreated = maxCreated;
-		// CT.minModified = minModified;
-		// CT.maxModified = maxModified;
-	},
-
 	
 	//
 	//  Page Generation
@@ -586,36 +473,6 @@ viz = {
 		
 
 		var i;
-
-		/*
-		//dropdown filters
-		$userSelect = $("select[name='dropUser']");
-		$statusSelect = $("select[name='dropStatus']");
-		$taskSelect = $("select[name='dropTask']");
-		$currentStateSelect = $("select[name='dropCurrentState']");
-		
-
-		//Add user names to user select filtering dropdown
-		for (i = 0; i < viz.users.length; i++) {
-            $("<option/>").attr("value", viz.users[i].id).text(viz.users[i]).appendTo($userSelect);
-		}
-			
-		//Add status to status select filtering dropdown
-		for (i = 0; i < viz.partStatus.length; i++) {
-            $("<option/>").attr("value", viz.partStatus[i].id).text(viz.partStatus[i]).appendTo($statusSelect);
-		}
-
-		//Add Tasks to Tasks select filtering dropdown
-		for (i = 0; i < viz.tasks.length; i++) {
-            $("<option/>").attr("value", viz.tasks[i].id).text(viz.tasks[i]).appendTo($taskSelect);
-		}
-
-		//Add currentStates to CurrentStates select filtering dropdown
-		for (i = 0; i < viz.currentStates.length; i++) {
-            $("<option/>").attr("value", viz.currentStates[i].id).text(viz.currentStates[i]).appendTo($currentStateSelect);
-		}
-
-		*/
 
 		// Create a division that will contain CR's
 		var $div = $(document.createElement('div'));
@@ -859,7 +716,6 @@ viz = {
 		if(data.user)				visible = visible || viz.filterRegex.test(data.user);
 		if(data.objectDescription)	visible = visible || viz.filterRegex.test(data.objectDescription);
 
-
 		return visible;
 	},
 
@@ -905,8 +761,6 @@ viz = {
 		$div.addClass('CR-expanded');
 	},
 
-
-	
 	// This method creates and returns a record division
 	createRecordDivision: function viz_createRecordDivision(CR_id, data) {
 		// if(viz.log) console.groupCollapsed('Created DIV for record: '+CR_id);
@@ -1236,13 +1090,14 @@ viz = {
 
 	// This method fills a task division content div with its content
 	fillTaskDivision: function viz_fillTaskDivision(CR_id, CN_id, id, data, blockContainer) {
+		var colIndex;
 		// Loop through every part
 		var parts = data.parts;
 		for(var part_id in parts) {
 			var partArray = parts[part_id];
 			for(var i=0;i<partArray.length;i++) {
 				var partData = partArray[i];
-				var colIndex = viz.getColumnIndex(partData.task);
+				colIndex = viz.getColumnIndex(partData.task);
 			}
 		}
 		// Loop through the blocks
